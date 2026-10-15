@@ -3,7 +3,7 @@
 **Ein Teams-Status für alle Tenants.** PresenceSync ist eine kleine Windows-App für den Infobereich, die den
 Microsoft-Teams-Status über mehrere Microsoft-Entra-ID-Tenants hinweg abgleicht und zentral steuerbar macht.
 
-[![CI](https://github.com/<owner>/presencesync/actions/workflows/ci.yml/badge.svg)](.github/workflows/ci.yml)
+[![CI](https://github.com/leveltwentyone/presencesync/actions/workflows/ci.yml/badge.svg)](https://github.com/leveltwentyone/presencesync/actions/workflows/ci.yml)
 [![Lizenz: MIT](https://img.shields.io/badge/Lizenz-MIT-blue.svg)](LICENSE)
 
 ## Das Problem
@@ -86,7 +86,7 @@ Details zu Komponenten, Sync-Logik und Datenflüssen: **[docs/architecture.md](d
    [`scripts/New-AppRegistration.ps1`](scripts/New-AppRegistration.ps1), siehe
    [docs/deployment.md → App-Registrierung](docs/deployment.md#1-app-registrierung). Die ausgegebene `appId` ist die
    **Client-ID**.
-2. **App starten:** `PresenceSync.exe` aus dem neuesten Release herunterladen (Prüfsumme siehe
+2. **App starten:** `PresenceSync.exe` aus dem [neuesten Release](https://github.com/leveltwentyone/presencesync/releases/latest) herunterladen (Prüfsumme siehe
    [SECURITY.md](SECURITY.md)) oder selbst bauen:
 
    ```bash

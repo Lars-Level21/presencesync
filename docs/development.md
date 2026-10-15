@@ -55,7 +55,7 @@ docs/                      Dokumentation (Einstieg: README.md)
 
 ### Checkliste vor dem ersten öffentlichen Release
 
-- [ ] Platzhalter ersetzen: `<owner>` im CI-Badge der README, Kontakte in `SECURITY.md` und `PRIVACY.md`
+- [ ] Platzhalter ersetzen: Kontakte in `SECURITY.md` und `PRIVACY.md`
 - [ ] Repository öffentlich schalten; *Settings → Code security*: **Private vulnerability reporting**,
       **Dependabot alerts**, **Secret scanning** aktivieren; Branch-Schutz für `main`
 - [ ] App-Registrierung des Herausgebers: Datenschutz-URL (veröffentlichte `PRIVACY.md`), Nutzungsbedingungen,

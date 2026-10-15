@@ -4,7 +4,7 @@
 
 Bitte melden Sie Sicherheitslücken **nicht** über öffentliche Issues, sondern vertraulich:
 
-- GitHub: *Security → Report a vulnerability* (Private vulnerability reporting), oder
+- GitHub: [Report a vulnerability](https://github.com/leveltwentyone/presencesync/security/advisories/new) (Private vulnerability reporting), oder
 - E-Mail an `<security-kontakt>`
 
 Bitte beschreiben Sie betroffene Version, Schritte zur Reproduktion und mögliche Auswirkungen. Wir bestätigen den

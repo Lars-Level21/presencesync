@@ -36,8 +36,8 @@ Kalender; keine Application Permissions, kein Backend, keine Telemetrie. Aus eur
 Admin-Consent erteilen und die Unternehmensanwendung per „Zuweisung erforderlich“ auf mein Konto beschränken.
 Anleitung mit PowerShell-Snippet, Berechtigungsdetails, Datenflüssen und Widerruf:
 
-- Informationen für Admins: `<Link zu docs/consent.md>`
-- Security-Review: `<Link zu docs/security-review.md>`
+- Informationen für Admins: https://github.com/leveltwentyone/presencesync/blob/main/docs/consent.md
+- Security-Review: https://github.com/leveltwentyone/presencesync/blob/main/docs/security-review.md
 
 Admin-Consent für den ganzen Tenant (danach bitte auf mein Konto beschränken):
 

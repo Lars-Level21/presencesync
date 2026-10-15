@@ -23,7 +23,7 @@ public sealed class GraphPresenceGateway : IPresenceGateway, IDisposable
         _clientId = clientId;
         _log = log;
         _http = new HttpClient { Timeout = TimeSpan.FromSeconds(15) };
-        _http.DefaultRequestHeaders.UserAgent.ParseAdd("PresenceSync/0.1");
+        _http.DefaultRequestHeaders.UserAgent.ParseAdd($"PresenceSync/{typeof(GraphPresenceGateway).Assembly.GetName().Version?.ToString(3)}");
     }
 
     public void Register(string tenantId, TenantAuthenticator auth)

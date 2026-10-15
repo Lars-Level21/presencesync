@@ -6,6 +6,7 @@
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     xmlns:res="clr-namespace:PresenceSync.Core.Resources;assembly=PresenceSync.Core"
     xmlns:vm="clr-namespace:PresenceSync.App.ViewModels"
+    xmlns:app="clr-namespace:PresenceSync.App"
     Title="{x:Static res:Strings.Settings_WindowTitle}"
     Width="760"
     Height="820"
@@ -41,7 +42,7 @@
 
         <ui:TitleBar Grid.Row="0" Title="{x:Static res:Strings.Settings_WindowTitle}" ShowMaximize="False" />
 
-        <ScrollViewer Grid.Row="1" Padding="24,0,24,16" VerticalScrollBarVisibility="Auto">
+        <ScrollViewer Grid.Row="1" Padding="24,0,24,16" VerticalScrollBarVisibility="Auto" app:WheelScrolling.Proportional="True">
             <StackPanel>
                 <ui:TextBlock Text="{x:Static res:Strings.Settings_Heading}" FontTypography="Title" Margin="0,4,0,0" />
                 <ui:InfoBar Title="{x:Static res:Strings.Settings_PolicyTitle}" IsOpen="{Binding IsPolicyActive, Mode=OneTime}" IsClosable="False"

@@ -32,6 +32,7 @@ SDK: .NET 10 LTS (pinned via `global.json`). Warnings are errors (`Directory.Bui
 - UI: WPF-UI controls (`ui:CardControl`, `ui:ToggleSwitch`, `ui:Button` …) and theme brushes via `DynamicResource`
   (e.g. `TextFillColorSecondaryBrush`); status icons (color + shape as in Teams) only via `Theme.Image`/`Theme.TrayIcon` with `PresenceGlyph`. Menus are built centrally
   in `MenuFactory`. Engine events come from background threads → `Dispatcher.BeginInvoke`.
+- Every scrollable area gets `app:WheelScrolling.Proportional="True"` on its `ScrollViewer`: WPF otherwise scrolls a full step per wheel message, which is far too fast with high-resolution mouse wheels.
 - Logs: no tokens, no appointment content, UPNs only via `Mask.Upn`. Tenant display names are fine.
 - Never block the UI thread on tasks, except via `Task.Run(...).Wait()` (no SynchronizationContext → no deadlock).
 - User-facing strings come from resources (`src/PresenceSync.Core/Resources/Strings.resx` = English default, `Strings.de.resx` = German) via the `Strings` class – never hard-coded in code or XAML. Logs, code comments and identifiers are English. Add a key to both `.resx` files, then run `scripts/Update-Strings.ps1` to regenerate the `Strings` properties; `LocalizationTests` checks that keys, properties and placeholders match in both languages. Errors shown to users are `TenantAccessException`s built from a `LocalizedMessage`: `UserMessage` in the UI language, `Message` in English for the log.

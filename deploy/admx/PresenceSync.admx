@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<policyDefinitions xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   revision="1.0" schemaVersion="1.0"
+                   xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <policyNamespaces>
+    <target prefix="presencesync" namespace="LEVEL21.Policies.PresenceSync" />
+  </policyNamespaces>
+  <resources minRequiredRevision="1.0" />
+  <supportedOn>
+    <definitions>
+      <definition name="SUPPORTED_PresenceSync_0_1" displayName="$(string.SUPPORTED_PresenceSync_0_1)" />
+    </definitions>
+  </supportedOn>
+  <categories>
+    <category name="PresenceSync" displayName="$(string.PresenceSync)" />
+  </categories>
+  <policies>
+    <policy name="ClientId" class="Both" displayName="$(string.ClientId)" explainText="$(string.ClientId_Help)"
+            presentation="$(presentation.ClientId)" key="Software\Policies\PresenceSync">
+      <parentCategory ref="PresenceSync" />
+      <supportedOn ref="SUPPORTED_PresenceSync_0_1" />
+      <elements>
+        <text id="ClientId" valueName="ClientId" required="true" maxLength="36" />
+      </elements>
+    </policy>
+    <policy name="AllowCustomClientId" class="Both" displayName="$(string.AllowCustomClientId)"
+            explainText="$(string.AllowCustomClientId_Help)" key="Software\Policies\PresenceSync" valueName="AllowCustomClientId">
+      <parentCategory ref="PresenceSync" />
+      <supportedOn ref="SUPPORTED_PresenceSync_0_1" />
+      <enabledValue>
+        <decimal value="1" />
+      </enabledValue>
+      <disabledValue>
+        <decimal value="0" />
+      </disabledValue>
+    </policy>
+    <policy name="HomeTenantId" class="Both" displayName="$(string.HomeTenantId)" explainText="$(string.HomeTenantId_Help)"
+            presentation="$(presentation.HomeTenantId)" key="Software\Policies\PresenceSync">
+      <parentCategory ref="PresenceSync" />
+      <supportedOn ref="SUPPORTED_PresenceSync_0_1" />
+      <elements>
+        <text id="HomeTenantId" valueName="HomeTenantId" required="true" maxLength="36" />
+      </elements>
+    </policy>
+  </policies>
+</policyDefinitions>

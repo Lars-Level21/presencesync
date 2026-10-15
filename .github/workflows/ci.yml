@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      # Actions pinned to commit SHAs (supply chain); Dependabot keeps them current.
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
+        with:
+          global-json-file: global.json
+
+      # No separate restore: the App project sets RuntimeIdentifier only for Release.
+      - name: Build
+        run: dotnet build -c Release
+
+      - name: Test
+        run: dotnet test --no-build -c Release --logger "trx;LogFileName=test-results.trx"
+
+      - name: Check dependencies for known vulnerabilities
+        shell: pwsh
+        run: |
+          $report = dotnet list package --vulnerable --include-transitive 2>&1 | Out-String
+          Write-Output $report
+          if ($report -match '(?im)^\s*>\s') { throw 'Vulnerable NuGet packages found' }
+
+      - name: Publish (single file, win-x64)
+        run: dotnet publish src/PresenceSync.App -c Release -o publish
+
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: PresenceSync-win-x64
+          path: publish/PresenceSync.exe

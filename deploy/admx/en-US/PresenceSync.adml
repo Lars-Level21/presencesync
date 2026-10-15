@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<policyDefinitionResources xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                           revision="1.0" schemaVersion="1.0"
+                           xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <displayName>PresenceSync</displayName>
+  <description>Policies for PresenceSync (sync Teams presence across tenants)</description>
+  <resources>
+    <stringTable>
+      <string id="PresenceSync">PresenceSync</string>
+      <string id="SUPPORTED_PresenceSync_0_1">PresenceSync 0.1 and later</string>
+      <string id="ClientId">Set the app registration client ID</string>
+      <string id="ClientId_Help">Sets the client ID (application ID) of the app registration PresenceSync signs in with.
+
+Enabled: the specified client ID is used. Users cannot change it in the settings unless the policy "Allow custom client ID" is enabled.
+
+Disabled or not configured: users enter the client ID themselves.
+
+Format: GUID, e.g. 00000000-0000-0000-0000-000000000000. Invalid values are ignored and logged.
+
+Registry: Software\Policies\PresenceSync, value ClientId (REG_SZ). Computer policy takes precedence over user policy.</string>
+      <string id="AllowCustomClientId">Allow custom client ID</string>
+      <string id="AllowCustomClientId_Help">Enabled: a client ID set by policy is only a default for an empty setting; users may enter a different client ID.
+
+Disabled or not configured: a client ID set by policy is mandatory and locked.
+
+Registry: Software\Policies\PresenceSync, value AllowCustomClientId (REG_DWORD, 1/0).</string>
+      <string id="HomeTenantId">Set the home tenant</string>
+      <string id="HomeTenantId_Help">Sets the organization's home tenant (tenant ID as GUID).
+
+Enabled: PresenceSync adds the home tenant automatically at startup and marks it as home. Users cannot remove it. If the Windows account is a member account of this tenant, PresenceSync signs in without user interaction; otherwise the user clicks "Sign in" once.
+
+Disabled or not configured: users add the home tenant themselves.
+
+Registry: Software\Policies\PresenceSync, value HomeTenantId (REG_SZ).</string>
+    </stringTable>
+    <presentationTable>
+      <presentation id="ClientId">
+        <textBox refId="ClientId">
+          <label>Client ID:</label>
+        </textBox>
+      </presentation>
+      <presentation id="HomeTenantId">
+        <textBox refId="HomeTenantId">
+          <label>Tenant ID:</label>
+        </textBox>
+      </presentation>
+    </presentationTable>
+  </resources>
+</policyDefinitionResources>

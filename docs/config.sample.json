@@ -1,0 +1,15 @@
+{
+  "clientId": "00000000-0000-0000-0000-000000000000",
+  "pollIntervalSeconds": 20,
+  "sessionExpirationMinutes": 5,
+  "sourceCooldownSeconds": 60,
+  "autoSync": true,
+  "useBroker": true,
+  "autostart": true,
+  "tenants": [
+    { "name": "LEVEL21", "tenantId": "11111111-1111-1111-1111-111111111111", "upn": "lars@example.com", "enabled": true, "isHome": true },
+    { "name": "Kunde A", "tenantId": "22222222-2222-2222-2222-222222222222", "upn": "lars.martin@kunde-a.example", "enabled": true, "isHome": false }
+  ],
+  "hotkeys": { "enabled": false, "doNotDisturbOneHour": "Ctrl+Alt+D", "reset": "Ctrl+Alt+R" },
+  "calendarMirror": { "enabled": false, "daysAhead": 14, "intervalMinutes": 10, "blockerSubject": "Blocker", "dryRun": true }
+}

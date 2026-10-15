@@ -1,0 +1,48 @@
+name: Release
+
+# Tag push (v1.2.3) -> build, test, publish single-file exe, SHA-256 checksum, GitHub release.
+on:
+  push:
+    tags: ['v*.*.*']
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    runs-on: windows-latest
+    permissions:
+      contents: write # create the GitHub release
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
+        with:
+          global-json-file: global.json
+
+      - name: Test
+        run: dotnet test -c Release
+
+      - name: Publish
+        shell: pwsh
+        run: |
+          $version = '${{ github.ref_name }}'.TrimStart('v')
+          dotnet publish src/PresenceSync.App -c Release -o publish -p:Version=$version
+
+      # Code signing: add an Authenticode step here (e.g. Azure Trusted Signing) before the checksum.
+      # Unsigned binaries trigger SmartScreen warnings and are harder to approve in managed environments.
+
+      - name: Checksum
+        shell: pwsh
+        run: |
+          $hash = (Get-FileHash publish/PresenceSync.exe -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash  PresenceSync.exe" | Set-Content publish/PresenceSync.exe.sha256 -Encoding ascii
+
+      - uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2
+        with:
+          files: |
+            publish/PresenceSync.exe
+            publish/PresenceSync.exe.sha256
+          generate_release_notes: true

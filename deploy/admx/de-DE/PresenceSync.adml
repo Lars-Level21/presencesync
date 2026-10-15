@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<policyDefinitionResources xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                           revision="1.0" schemaVersion="1.0"
+                           xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <displayName>PresenceSync</displayName>
+  <description>Richtlinien für PresenceSync (Teams-Status über mehrere Tenants synchronisieren)</description>
+  <resources>
+    <stringTable>
+      <string id="PresenceSync">PresenceSync</string>
+      <string id="SUPPORTED_PresenceSync_0_1">PresenceSync 0.1 und neuer</string>
+      <string id="ClientId">Client-ID der App-Registrierung vorgeben</string>
+      <string id="ClientId_Help">Legt die Client-ID (Anwendungs-ID) der App-Registrierung fest, mit der PresenceSync sich anmeldet.
+
+Aktiviert: Die angegebene Client-ID wird verwendet. Benutzer können sie in den Einstellungen nicht ändern, es sei denn, die Richtlinie "Eigene Client-ID erlauben" ist aktiviert.
+
+Deaktiviert oder nicht konfiguriert: Benutzer tragen die Client-ID selbst ein.
+
+Format: GUID, z. B. 00000000-0000-0000-0000-000000000000. Ungültige Werte werden ignoriert und protokolliert.
+
+Registry: Software\Policies\PresenceSync, Wert ClientId (REG_SZ). Computerrichtlinie hat Vorrang vor Benutzerrichtlinie.</string>
+      <string id="AllowCustomClientId">Eigene Client-ID erlauben</string>
+      <string id="AllowCustomClientId_Help">Aktiviert: Die per Richtlinie vorgegebene Client-ID ist nur ein Vorschlag für eine leere Einstellung; Benutzer dürfen eine andere Client-ID eintragen.
+
+Deaktiviert oder nicht konfiguriert: Eine vorgegebene Client-ID ist verbindlich und gesperrt.
+
+Registry: Software\Policies\PresenceSync, Wert AllowCustomClientId (REG_DWORD, 1/0).</string>
+      <string id="HomeTenantId">Home-Tenant vorgeben</string>
+      <string id="HomeTenantId_Help">Legt den Home-Tenant der Organisation fest (Tenant-ID als GUID).
+
+Aktiviert: PresenceSync legt den Home-Tenant beim Start automatisch an und kennzeichnet ihn als Home. Benutzer können ihn nicht entfernen. Ist das Windows-Konto ein Mitgliedskonto dieses Tenants, meldet sich PresenceSync ohne weitere Eingabe an; andernfalls klickt der Benutzer einmal auf "Anmelden".
+
+Deaktiviert oder nicht konfiguriert: Benutzer fügen den Home-Tenant selbst hinzu.
+
+Registry: Software\Policies\PresenceSync, Wert HomeTenantId (REG_SZ).</string>
+    </stringTable>
+    <presentationTable>
+      <presentation id="ClientId">
+        <textBox refId="ClientId">
+          <label>Client-ID:</label>
+        </textBox>
+      </presentation>
+      <presentation id="HomeTenantId">
+        <textBox refId="HomeTenantId">
+          <label>Tenant-ID:</label>
+        </textBox>
+      </presentation>
+    </presentationTable>
+  </resources>
+</policyDefinitionResources>

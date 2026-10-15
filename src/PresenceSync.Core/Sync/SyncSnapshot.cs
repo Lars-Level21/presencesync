@@ -1,3 +1,4 @@
+using PresenceSync.Core.Resources;
 using PresenceSync.Core.Presence;
 
 namespace PresenceSync.Core.Sync;
@@ -18,27 +19,29 @@ public sealed record TenantSnapshot(
 {
     public bool HasProblem => Enabled && Health is TenantHealth.AuthRequired or TenantHealth.Disabled;
 
-    /// <summary>Short line for tooltip and menu, e.g. "Im Anruf (Quelle)".</summary>
+    /// <summary>Short line for tooltip and menu in the UI language, e.g. "In a call (source)".</summary>
     public string StatusLine
     {
         get
         {
-            if (!Enabled) return "Deaktiviert";
+            if (!Enabled) return Strings.Tenant_Disabled;
             return Health switch
             {
-                TenantHealth.AuthRequired => "Anmeldung erforderlich",
-                TenantHealth.Disabled => "Gesperrt: " + HealthMessage,
-                TenantHealth.Unknown => "…",
-                _ => PresenceText.Describe(Presence) + Role switch
-                {
-                    TenantRole.Source => " (Quelle)",
-                    TenantRole.Synced => " (Sync)",
-                    TenantRole.Manual => " (manuell)",
-                    _ => "",
-                } + (Health == TenantHealth.Degraded ? " ⚠" : ""),
+                TenantHealth.AuthRequired => Strings.Tenant_SignInRequired,
+                TenantHealth.Disabled => Strings.Format(nameof(Strings.Tenant_Blocked), HealthMessage),
+                TenantHealth.Unknown => Strings.Tenant_Pending,
+                _ => WithRole(PresenceText.Describe(Presence)) + (Health == TenantHealth.Degraded ? " ⚠" : ""),
             };
         }
     }
+
+    private string WithRole(string status) => Role switch
+    {
+        TenantRole.Source => Strings.Format(nameof(Strings.Tenant_RoleSource), status),
+        TenantRole.Synced => Strings.Format(nameof(Strings.Tenant_RoleSynced), status),
+        TenantRole.Manual => Strings.Format(nameof(Strings.Tenant_RoleManual), status),
+        _ => status,
+    };
 }
 
 public enum TrayState

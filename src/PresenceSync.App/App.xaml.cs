@@ -29,13 +29,13 @@ public partial class App : Application
                 rollingInterval: RollingInterval.Day,
                 retainedFileCountLimit: 14)
             .CreateLogger();
-        Log.Information("PresenceSync {Version} startet", typeof(App).Assembly.GetName().Version);
+        Log.Information("PresenceSync {Version} starting", typeof(App).Assembly.GetName().Version);
 
         DispatcherUnhandledException += OnDispatcherUnhandledException;
-        AppDomain.CurrentDomain.UnhandledException += (_, args) => Log.Fatal(args.ExceptionObject as Exception, "Unbehandelte Ausnahme");
+        AppDomain.CurrentDomain.UnhandledException += (_, args) => Log.Fatal(args.ExceptionObject as Exception, "Unhandled exception");
         TaskScheduler.UnobservedTaskException += (_, args) =>
         {
-            Log.Error(args.Exception, "Unbeobachtete Task-Ausnahme");
+            Log.Error(args.Exception, "Unobserved task exception");
             args.SetObserved();
         };
 
@@ -54,7 +54,7 @@ public partial class App : Application
     protected override void OnExit(ExitEventArgs e)
     {
         _controller?.Dispose();
-        Log.Information("PresenceSync beendet");
+        Log.Information("PresenceSync stopped");
         Log.CloseAndFlush();
         _singleInstance?.Dispose();
         base.OnExit(e);
@@ -62,7 +62,7 @@ public partial class App : Application
 
     private static void OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
     {
-        Log.Error(e.Exception, "Unbehandelte Ausnahme (UI)");
+        Log.Error(e.Exception, "Unhandled exception (UI)");
         e.Handled = true;
     }
 }

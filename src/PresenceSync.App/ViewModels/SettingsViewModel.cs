@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Text.Json;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using PresenceSync.Core.Resources;
 using PresenceSync.Core.Configuration;
 using PresenceSync.Core.Sync;
 using PresenceSync.Graph;
@@ -49,8 +50,8 @@ internal sealed partial class SettingsViewModel : ObservableObject
     private static string DescribeAccount(Microsoft.Identity.Client.AuthenticationResult result) =>
         result.Account.HomeAccountId?.TenantId is { } home
         && !string.Equals(home, result.TenantId, StringComparison.OrdinalIgnoreCase)
-            ? "Gastkonto"
-            : "Mitgliedskonto";
+            ? Strings.Account_Guest
+            : Strings.Account_Member;
 
     /// <summary>Parent window handle for the WAM dialog; set by the view.</summary>
     public Func<IntPtr> OwnerHandle { get; set; } = () => IntPtr.Zero;
@@ -103,15 +104,15 @@ internal sealed partial class SettingsViewModel : ObservableObject
         var clientId = ClientId.Trim();
         if (!Guid.TryParse(clientId, out _))
         {
-            Show(InfoBarSeverity.Warning, "Client-ID fehlt",
-                "Bitte zuerst die Client-ID der App-Registrierung eintragen (siehe docs/deployment.md).");
+            Show(InfoBarSeverity.Warning, Strings.Settings_ClientIdMissingTitle,
+                Strings.Settings_ClientIdMissingText);
             return;
         }
         // Empty tenant = Windows account picker ("organizations"); a tenant is only needed for guest accounts.
         var tenant = string.IsNullOrWhiteSpace(NewTenant) ? null : NewTenant.Trim();
         if (tenant is not null && !TenantInput.IsValid(tenant))
         {
-            Show(InfoBarSeverity.Warning, "Tenant ungültig", "Tenant-ID (GUID) oder Domain eingeben, z. B. contoso.com – oder das Feld leer lassen.");
+            Show(InfoBarSeverity.Warning, Strings.Settings_TenantInvalidTitle, Strings.Settings_TenantInvalidText);
             return;
         }
 
@@ -124,7 +125,7 @@ internal sealed partial class SettingsViewModel : ObservableObject
             var upn = result.Account.Username;
 
             var existing = Tenants.FirstOrDefault(t => string.Equals(t.TenantId, result.TenantId, StringComparison.OrdinalIgnoreCase));
-            var account = $"{upn} ({DescribeAccount(result)})";
+            var account = Strings.Format(nameof(Strings.Account_WithType), upn, DescribeAccount(result));
             if (existing is not null)
             {
                 if (string.IsNullOrEmpty(existing.Upn))
@@ -132,34 +133,32 @@ internal sealed partial class SettingsViewModel : ObservableObject
                     // e.g. home tenant pre-created by policy: first sign-in, nothing to replace.
                     existing.Upn = upn;
                     HasPendingChanges = true;
-                    Show(InfoBarSeverity.Success, "Angemeldet", $"„{existing.Name}“ mit {account} angemeldet. Mit „Speichern“ übernehmen.");
+                    Show(InfoBarSeverity.Success, Strings.Settings_SignedInTitle, Strings.Format(nameof(Strings.Settings_SignedInExisting), existing.Name, account));
                     return;
                 }
 
                 if (string.Equals(existing.Upn, upn, StringComparison.OrdinalIgnoreCase))
                 {
-                    Show(InfoBarSeverity.Informational, "Bereits eingerichtet",
-                        $"„{existing.Name}“ ist schon mit {account} eingerichtet. Nichts geändert.");
+                    Show(InfoBarSeverity.Informational, Strings.Settings_AlreadySetUpTitle,
+                        Strings.Format(nameof(Strings.Settings_AlreadySetUpText), existing.Name, account));
                     return;
                 }
 
                 // One account per tenant: never replace the existing account silently.
                 var replace = await ConfirmAsync(
-                    "Konto im Tenant ersetzen?",
-                    $"Für „{existing.Name}“ ist bereits ein Konto eingerichtet. PresenceSync synchronisiert pro Tenant genau ein Konto.\n\n" +
-                    $"Bisher:\t{existing.Upn}\nNeu:\t{account}\n\n" +
-                    "Soll das bisherige Konto durch das neue ersetzt werden?");
+                    Strings.Replace_Title,
+                    Strings.Format(nameof(Strings.Replace_Text), existing.Name, existing.Upn, account));
                 if (!replace)
                 {
-                    Show(InfoBarSeverity.Informational, "Nicht geändert", $"„{existing.Name}“ bleibt bei {existing.Upn}.");
+                    Show(InfoBarSeverity.Informational, Strings.Settings_NotChangedTitle, Strings.Format(nameof(Strings.Settings_NotChangedText), existing.Name, existing.Upn));
                     return;
                 }
 
                 var previous = existing.Upn;
                 existing.Upn = upn;
                 HasPendingChanges = true;
-                Show(InfoBarSeverity.Warning, "Konto ersetzt",
-                    $"„{existing.Name}“: {previous} → {account}. Mit „Speichern“ übernehmen.");
+                Show(InfoBarSeverity.Warning, Strings.Settings_ReplacedTitle,
+                    Strings.Format(nameof(Strings.Settings_ReplacedText), existing.Name, previous, account));
                 return;
             }
             else
@@ -169,7 +168,7 @@ internal sealed partial class SettingsViewModel : ObservableObject
                       ?? upn[(upn.IndexOf('@') + 1)..];
                 Tenants.Add(new TenantRowViewModel(this, name, result.TenantId, upn, enabled: true, isHome: Tenants.Count == 0));
                 OnPropertyChanged(nameof(HasTenants));
-                Show(InfoBarSeverity.Success, "Angemeldet", $"„{name}“ mit {account} hinzugefügt. Name bei Bedarf anpassen, dann „Speichern“.");
+                Show(InfoBarSeverity.Success, Strings.Settings_SignedInTitle, Strings.Format(nameof(Strings.Settings_AddedText), name, account));
             }
 
             NewTenant = "";
@@ -178,11 +177,11 @@ internal sealed partial class SettingsViewModel : ObservableObject
         }
         catch (TenantAccessException ex)
         {
-            Show(InfoBarSeverity.Error, "Anmeldung fehlgeschlagen", ex.UserMessage);
+            Show(InfoBarSeverity.Error, Strings.Notify_SignInFailed, ex.UserMessage);
         }
         catch (Exception ex)
         {
-            Show(InfoBarSeverity.Error, "Anmeldung fehlgeschlagen", ex.Message);
+            Show(InfoBarSeverity.Error, Strings.Notify_SignInFailed, ex.Message);
         }
         finally
         {

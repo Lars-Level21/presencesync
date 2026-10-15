@@ -1,0 +1,557 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Presence_Unknown" xml:space="preserve">
+    <value>Unknown</value>
+  </data>
+  <data name="Presence_InACall" xml:space="preserve">
+    <value>In a call</value>
+  </data>
+  <data name="Presence_InAConferenceCall" xml:space="preserve">
+    <value>In a conference call</value>
+  </data>
+  <data name="Presence_InAMeeting" xml:space="preserve">
+    <value>In a meeting</value>
+  </data>
+  <data name="Presence_Presenting" xml:space="preserve">
+    <value>Presenting</value>
+  </data>
+  <data name="Presence_UrgentInterruptionsOnly" xml:space="preserve">
+    <value>Urgent interruptions only</value>
+  </data>
+  <data name="Presence_OutOfOffice" xml:space="preserve">
+    <value>Out of office</value>
+  </data>
+  <data name="Presence_OffWork" xml:space="preserve">
+    <value>Off work</value>
+  </data>
+  <data name="Presence_Available" xml:space="preserve">
+    <value>Available</value>
+  </data>
+  <data name="Presence_AvailableIdle" xml:space="preserve">
+    <value>Available (idle)</value>
+  </data>
+  <data name="Presence_Busy" xml:space="preserve">
+    <value>Busy</value>
+  </data>
+  <data name="Presence_BusyIdle" xml:space="preserve">
+    <value>Busy (idle)</value>
+  </data>
+  <data name="Presence_DoNotDisturb" xml:space="preserve">
+    <value>Do not disturb</value>
+  </data>
+  <data name="Presence_BeRightBack" xml:space="preserve">
+    <value>Be right back</value>
+  </data>
+  <data name="Presence_Away" xml:space="preserve">
+    <value>Away</value>
+  </data>
+  <data name="Presence_Offline" xml:space="preserve">
+    <value>Offline</value>
+  </data>
+  <data name="Tenant_Disabled" xml:space="preserve">
+    <value>Disabled</value>
+  </data>
+  <data name="Tenant_SignInRequired" xml:space="preserve">
+    <value>Sign-in required</value>
+  </data>
+  <data name="Tenant_Blocked" xml:space="preserve">
+    <value>Blocked: {0}</value>
+  </data>
+  <data name="Tenant_Pending" xml:space="preserve">
+    <value>…</value>
+  </data>
+  <data name="Tenant_RoleSource" xml:space="preserve">
+    <value>{0} (source)</value>
+  </data>
+  <data name="Tenant_RoleSynced" xml:space="preserve">
+    <value>{0} (sync)</value>
+  </data>
+  <data name="Tenant_RoleManual" xml:space="preserve">
+    <value>{0} (manual)</value>
+  </data>
+  <data name="Error_WithCode" xml:space="preserve">
+    <value>{0} ({1})</value>
+  </data>
+  <data name="Error_NotSignedIn" xml:space="preserve">
+    <value>Not signed in yet</value>
+  </data>
+  <data name="Error_WindowsAccountNotInTenant" xml:space="preserve">
+    <value>The Windows account does not belong to this tenant – please sign in</value>
+  </data>
+  <data name="Error_SignInCanceled" xml:space="preserve">
+    <value>Sign-in canceled</value>
+  </data>
+  <data name="Error_SignInRequiredCode" xml:space="preserve">
+    <value>Sign-in required ({0})</value>
+  </data>
+  <data name="Error_AuthThrottled" xml:space="preserve">
+    <value>The sign-in service is throttling requests</value>
+  </data>
+  <data name="Error_AuthUnavailable" xml:space="preserve">
+    <value>The sign-in service is not reachable</value>
+  </data>
+  <data name="Error_SignInFailedCode" xml:space="preserve">
+    <value>Sign-in failed ({0})</value>
+  </data>
+  <data name="Error_SignInNotPossible" xml:space="preserve">
+    <value>Sign-in not possible ({0})</value>
+  </data>
+  <data name="Error_Network" xml:space="preserve">
+    <value>Network error</value>
+  </data>
+  <data name="Error_GraphTimeout" xml:space="preserve">
+    <value>Microsoft Graph timed out</value>
+  </data>
+  <data name="Error_GraphThrottled" xml:space="preserve">
+    <value>Microsoft Graph is throttling or unavailable ({0})</value>
+  </data>
+  <data name="Error_TokenRejected" xml:space="preserve">
+    <value>Token rejected ({0})</value>
+  </data>
+  <data name="Error_AccessDenied" xml:space="preserve">
+    <value>Access denied – check consent or Teams license ({0})</value>
+  </data>
+  <data name="Error_Graph" xml:space="preserve">
+    <value>Microsoft Graph error ({0})</value>
+  </data>
+  <data name="Error_NotFound" xml:space="preserve">
+    <value>Not found ({0})</value>
+  </data>
+  <data name="Error_TenantNotConfigured" xml:space="preserve">
+    <value>Tenant not configured</value>
+  </data>
+  <data name="Error_UserIdUnavailable" xml:space="preserve">
+    <value>Could not determine the user ID</value>
+  </data>
+  <data name="Error_Unexpected" xml:space="preserve">
+    <value>Unexpected error: {0}</value>
+  </data>
+  <data name="Aad_MfaRequired" xml:space="preserve">
+    <value>MFA required – please sign in</value>
+  </data>
+  <data name="Aad_MfaRegistrationRequired" xml:space="preserve">
+    <value>MFA registration required – please sign in</value>
+  </data>
+  <data name="Aad_MfaExpired" xml:space="preserve">
+    <value>MFA expired – please sign in</value>
+  </data>
+  <data name="Aad_PasswordChanged" xml:space="preserve">
+    <value>Sign-in expired (password changed?) – please sign in</value>
+  </data>
+  <data name="Aad_Inactivity" xml:space="preserve">
+    <value>Sign-in expired due to inactivity – please sign in</value>
+  </data>
+  <data name="Aad_SessionExpiredByPolicy" xml:space="preserve">
+    <value>Session expired by Conditional Access – please sign in</value>
+  </data>
+  <data name="Aad_NoSession" xml:space="preserve">
+    <value>No sign-in session – please sign in</value>
+  </data>
+  <data name="Aad_ConsentMissing" xml:space="preserve">
+    <value>Consent missing – please sign in and consent</value>
+  </data>
+  <data name="Aad_CompliantDevice" xml:space="preserve">
+    <value>Conditional Access requires a compliant device</value>
+  </data>
+  <data name="Aad_DomainJoinedDevice" xml:space="preserve">
+    <value>Conditional Access requires a domain-joined device</value>
+  </data>
+  <data name="Aad_ApprovedClientApp" xml:space="preserve">
+    <value>Conditional Access does not allow this app (approved client app required)</value>
+  </data>
+  <data name="Aad_BlockedByPolicy" xml:space="preserve">
+    <value>Access blocked by Conditional Access</value>
+  </data>
+  <data name="Aad_ManagedDevice" xml:space="preserve">
+    <value>Conditional Access requires a managed device</value>
+  </data>
+  <data name="Aad_AdminConsentRequired" xml:space="preserve">
+    <value>Admin approval required – ask the tenant's IT, see docs/consent.md</value>
+  </data>
+  <data name="Aad_ConsentDeclined" xml:space="preserve">
+    <value>Consent was declined</value>
+  </data>
+  <data name="Aad_AppNotFound" xml:space="preserve">
+    <value>App registration not found in the tenant (check the client ID)</value>
+  </data>
+  <data name="Aad_NotAssigned" xml:space="preserve">
+    <value>User is not assigned to the app in this tenant (assignment required)</value>
+  </data>
+  <data name="Aad_AccountNotInTenant" xml:space="preserve">
+    <value>Account does not exist in this tenant</value>
+  </data>
+  <data name="Aad_AccountDisabled" xml:space="preserve">
+    <value>Account is disabled</value>
+  </data>
+  <data name="Aad_AccountLocked" xml:space="preserve">
+    <value>Account is locked</value>
+  </data>
+  <data name="Aad_AccountNotInTenantGuest" xml:space="preserve">
+    <value>Account does not exist in this tenant (check guest/home tenant)</value>
+  </data>
+  <data name="Policy_HomeTenantDefaultName" xml:space="preserve">
+    <value>Home tenant</value>
+  </data>
+  <data name="Tray_Starting" xml:space="preserve">
+    <value>PresenceSync – starting …</value>
+  </data>
+  <data name="Tray_NotConfigured" xml:space="preserve">
+    <value>PresenceSync – not set up</value>
+  </data>
+  <data name="Tray_TooltipHeader" xml:space="preserve">
+    <value>PresenceSync – {0}</value>
+  </data>
+  <data name="Flyout_Starting" xml:space="preserve">
+    <value>Starting …</value>
+  </data>
+  <data name="Flyout_NotConfigured" xml:space="preserve">
+    <value>Not set up – open the settings</value>
+  </data>
+  <data name="Flyout_Paused" xml:space="preserve">
+    <value>Offline – sync paused</value>
+  </data>
+  <data name="Flyout_NoTenants" xml:space="preserve">
+    <value>No tenants set up yet</value>
+  </data>
+  <data name="Flyout_OneProblem" xml:space="preserve">
+    <value>1 tenant needs attention</value>
+  </data>
+  <data name="Flyout_Problems" xml:space="preserve">
+    <value>{0} tenants need attention</value>
+  </data>
+  <data name="Flyout_AutoSyncOff" xml:space="preserve">
+    <value>Auto-sync is off</value>
+  </data>
+  <data name="Flyout_SyncActive" xml:space="preserve">
+    <value>Sync active – source: {0}</value>
+  </data>
+  <data name="Flyout_AllAvailable" xml:space="preserve">
+    <value>All available</value>
+  </data>
+  <data name="Flyout_Settings" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="Flyout_EmptyHint" xml:space="preserve">
+    <value>No tenants yet. Add them in the settings.</value>
+  </data>
+  <data name="Flyout_SignIn" xml:space="preserve">
+    <value>Sign in</value>
+  </data>
+  <data name="Flyout_TenantMenuTooltip" xml:space="preserve">
+    <value>Status for this tenant</value>
+  </data>
+  <data name="Flyout_AllTenants" xml:space="preserve">
+    <value>All tenants</value>
+  </data>
+  <data name="Flyout_QuickDnd" xml:space="preserve">
+    <value>Do not disturb · 1 h</value>
+  </data>
+  <data name="Flyout_QuickBusy" xml:space="preserve">
+    <value>Busy · 1 h</value>
+  </data>
+  <data name="Flyout_QuickBrb" xml:space="preserve">
+    <value>Be right back · 30 min</value>
+  </data>
+  <data name="Flyout_More" xml:space="preserve">
+    <value>More statuses and durations …</value>
+  </data>
+  <data name="Flyout_OpenLog" xml:space="preserve">
+    <value>Open log</value>
+  </data>
+  <data name="Flyout_Exit" xml:space="preserve">
+    <value>Exit PresenceSync</value>
+  </data>
+  <data name="Detail_ManualUntil" xml:space="preserve">
+    <value>Manual until {0}</value>
+  </data>
+  <data name="Detail_SessionUntil" xml:space="preserve">
+    <value>Sync session until {0}</value>
+  </data>
+  <data name="Common_AutoSync" xml:space="preserve">
+    <value>Auto-sync</value>
+  </data>
+  <data name="Common_Reset" xml:space="preserve">
+    <value>Reset</value>
+  </data>
+  <data name="Common_Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="Common_Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Duration_30Minutes" xml:space="preserve">
+    <value>30 minutes</value>
+  </data>
+  <data name="Duration_1Hour" xml:space="preserve">
+    <value>1 hour</value>
+  </data>
+  <data name="Duration_2Hours" xml:space="preserve">
+    <value>2 hours</value>
+  </data>
+  <data name="Duration_EndOfDay" xml:space="preserve">
+    <value>Until end of day</value>
+  </data>
+  <data name="Duration_Unlimited" xml:space="preserve">
+    <value>Unlimited</value>
+  </data>
+  <data name="Menu_Open" xml:space="preserve">
+    <value>Open PresenceSync</value>
+  </data>
+  <data name="Menu_All" xml:space="preserve">
+    <value>All: {0}</value>
+  </data>
+  <data name="Menu_Settings" xml:space="preserve">
+    <value>Settings …</value>
+  </data>
+  <data name="Menu_Exit" xml:space="preserve">
+    <value>Exit</value>
+  </data>
+  <data name="Menu_InfoStatus" xml:space="preserve">
+    <value>Status: {0}</value>
+  </data>
+  <data name="Menu_InfoManual" xml:space="preserve">
+    <value>Manual: {0} until {1}</value>
+  </data>
+  <data name="Menu_SignIn" xml:space="preserve">
+    <value>Sign in …</value>
+  </data>
+  <data name="Menu_SignInAgain" xml:space="preserve">
+    <value>Sign in again …</value>
+  </data>
+  <data name="Menu_Enabled" xml:space="preserve">
+    <value>Enabled</value>
+  </data>
+  <data name="Notify_ConfigInvalid" xml:space="preserve">
+    <value>config.json is invalid and will be ignored:
+{0}
+
+{1}</value>
+  </data>
+  <data name="Notify_StartFailed" xml:space="preserve">
+    <value>PresenceSync could not start</value>
+  </data>
+  <data name="Notify_SettingsNotApplied" xml:space="preserve">
+    <value>Settings not applied</value>
+  </data>
+  <data name="Notify_TenantSignInRequired" xml:space="preserve">
+    <value>{0}: sign-in required</value>
+  </data>
+  <data name="Notify_TenantBlocked" xml:space="preserve">
+    <value>{0}: tenant blocked</value>
+  </data>
+  <data name="Notify_FixInWindow" xml:space="preserve">
+    <value>Fix it in the PresenceSync window.</value>
+  </data>
+  <data name="Notify_SignInFailed" xml:space="preserve">
+    <value>Sign-in failed</value>
+  </data>
+  <data name="Notify_NotConfiguredTitle" xml:space="preserve">
+    <value>PresenceSync is not set up</value>
+  </data>
+  <data name="Notify_NotConfiguredText" xml:space="preserve">
+    <value>Enter the client ID and tenants in the settings.</value>
+  </data>
+  <data name="Notify_ActionFailed" xml:space="preserve">
+    <value>Action failed</value>
+  </data>
+  <data name="Notify_NoActiveTenantTitle" xml:space="preserve">
+    <value>No active tenant</value>
+  </data>
+  <data name="Notify_NoActiveTenantText" xml:space="preserve">
+    <value>No signed-in, active tenant is set up. Add tenants in the settings and save.</value>
+  </data>
+  <data name="Notify_PartialStatusTitle" xml:space="preserve">
+    <value>Status not set everywhere</value>
+  </data>
+  <data name="Account_Guest" xml:space="preserve">
+    <value>guest account</value>
+  </data>
+  <data name="Account_Member" xml:space="preserve">
+    <value>member account</value>
+  </data>
+  <data name="Account_WithType" xml:space="preserve">
+    <value>{0} ({1})</value>
+  </data>
+  <data name="Replace_Title" xml:space="preserve">
+    <value>Replace account in tenant?</value>
+  </data>
+  <data name="Replace_Text" xml:space="preserve">
+    <value>An account is already set up for “{0}”. PresenceSync syncs exactly one account per tenant.
+
+Current:	{1}
+New:	{2}
+
+Replace the current account with the new one?</value>
+  </data>
+  <data name="Replace_Button" xml:space="preserve">
+    <value>Replace</value>
+  </data>
+  <data name="Settings_ClientIdMissingTitle" xml:space="preserve">
+    <value>Client ID missing</value>
+  </data>
+  <data name="Settings_ClientIdMissingText" xml:space="preserve">
+    <value>Enter the client ID of the app registration first (see docs/deployment.md).</value>
+  </data>
+  <data name="Settings_TenantInvalidTitle" xml:space="preserve">
+    <value>Invalid tenant</value>
+  </data>
+  <data name="Settings_TenantInvalidText" xml:space="preserve">
+    <value>Enter a tenant ID (GUID) or domain, e.g. contoso.com – or leave the field empty.</value>
+  </data>
+  <data name="Settings_SignedInTitle" xml:space="preserve">
+    <value>Signed in</value>
+  </data>
+  <data name="Settings_SignedInExisting" xml:space="preserve">
+    <value>“{0}” signed in with {1}. Click “Save” to apply.</value>
+  </data>
+  <data name="Settings_AlreadySetUpTitle" xml:space="preserve">
+    <value>Already set up</value>
+  </data>
+  <data name="Settings_AlreadySetUpText" xml:space="preserve">
+    <value>“{0}” is already set up with {1}. Nothing changed.</value>
+  </data>
+  <data name="Settings_NotChangedTitle" xml:space="preserve">
+    <value>Not changed</value>
+  </data>
+  <data name="Settings_NotChangedText" xml:space="preserve">
+    <value>“{0}” keeps {1}.</value>
+  </data>
+  <data name="Settings_ReplacedTitle" xml:space="preserve">
+    <value>Account replaced</value>
+  </data>
+  <data name="Settings_ReplacedText" xml:space="preserve">
+    <value>“{0}”: {1} → {2}. Click “Save” to apply.</value>
+  </data>
+  <data name="Settings_AddedText" xml:space="preserve">
+    <value>“{0}” added with {1}. Adjust the name if needed, then click “Save”.</value>
+  </data>
+  <data name="Settings_WindowTitle" xml:space="preserve">
+    <value>PresenceSync – Settings</value>
+  </data>
+  <data name="Settings_Heading" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="Settings_PolicyTitle" xml:space="preserve">
+    <value>Managed by your organization</value>
+  </data>
+  <data name="Settings_PolicyText" xml:space="preserve">
+    <value>Some settings are set by policy (Intune/Group Policy) and locked here.</value>
+  </data>
+  <data name="Settings_SectionConnection" xml:space="preserve">
+    <value>Connection</value>
+  </data>
+  <data name="Settings_ClientId" xml:space="preserve">
+    <value>Client ID of the app registration</value>
+  </data>
+  <data name="Settings_ClientIdHint" xml:space="preserve">
+    <value>From your organization's app registration, see docs/deployment.md</value>
+  </data>
+  <data name="Settings_SetByOrganization" xml:space="preserve">
+    <value>Set by your organization</value>
+  </data>
+  <data name="Settings_UseBroker" xml:space="preserve">
+    <value>Use Windows sign-in (WAM)</value>
+  </data>
+  <data name="Settings_UseBrokerHint" xml:space="preserve">
+    <value>Uses the accounts signed in to Windows and Teams. Off = browser sign-in.</value>
+  </data>
+  <data name="Settings_SectionTenants" xml:space="preserve">
+    <value>Tenants</value>
+  </data>
+  <data name="Settings_TenantsHint" xml:space="preserve">
+    <value>Every tenant – including the home tenant – must be signed in here. Auto-sync needs at least two active tenants.</value>
+  </data>
+  <data name="Settings_DisplayName" xml:space="preserve">
+    <value>Display name</value>
+  </data>
+  <data name="Settings_ManagedTenantHint" xml:space="preserve">
+    <value>Set by your organization – please sign in if no account is shown yet</value>
+  </data>
+  <data name="Settings_Home" xml:space="preserve">
+    <value>Home</value>
+  </data>
+  <data name="Settings_HomeTooltip" xml:space="preserve">
+    <value>Marks the home tenant (display only)</value>
+  </data>
+  <data name="Settings_Active" xml:space="preserve">
+    <value>Active</value>
+  </data>
+  <data name="Settings_Off" xml:space="preserve">
+    <value>Off</value>
+  </data>
+  <data name="Settings_RemoveTenant" xml:space="preserve">
+    <value>Remove tenant</value>
+  </data>
+  <data name="Settings_AddTenant" xml:space="preserve">
+    <value>Add tenant</value>
+  </data>
+  <data name="Settings_AddTenantHint" xml:space="preserve">
+    <value>Choose an account in the Windows account picker – tenant and name are taken over automatically.</value>
+  </data>
+  <data name="Settings_DisplayNameOptional" xml:space="preserve">
+    <value>Display name (optional – otherwise the tenant's name)</value>
+  </data>
+  <data name="Settings_ChooseAccount" xml:space="preserve">
+    <value>Choose account …</value>
+  </data>
+  <data name="Settings_Advanced" xml:space="preserve">
+    <value>Advanced: guest account or specific tenant</value>
+  </data>
+  <data name="Settings_AdvancedHint" xml:space="preserve">
+    <value>Only needed for guest accounts (B2B): without it, a guest lands in their home tenant. Enter the customer tenant's ID or domain, then “Choose account …”.</value>
+  </data>
+  <data name="Settings_TenantPlaceholder" xml:space="preserve">
+    <value>Tenant ID or domain (e.g. contoso.com)</value>
+  </data>
+  <data name="Settings_SectionSync" xml:space="preserve">
+    <value>Synchronization</value>
+  </data>
+  <data name="Settings_AutoSyncHint" xml:space="preserve">
+    <value>A call, meeting, presentation or DnD in one tenant sets all others to busy.</value>
+  </data>
+  <data name="Settings_PollInterval" xml:space="preserve">
+    <value>Polling interval (seconds)</value>
+  </data>
+  <data name="Settings_PollIntervalHint" xml:space="preserve">
+    <value>How often the status of all tenants is read. 10–300, default 20.</value>
+  </data>
+  <data name="Settings_SessionExpiration" xml:space="preserve">
+    <value>Sync session expiry (minutes)</value>
+  </data>
+  <data name="Settings_SessionExpirationHint" xml:space="preserve">
+    <value>Expires on its own if the app crashes. 5–240, default 5.</value>
+  </data>
+  <data name="Settings_SectionStartup" xml:space="preserve">
+    <value>Startup and shortcuts</value>
+  </data>
+  <data name="Settings_Autostart" xml:space="preserve">
+    <value>Start with Windows</value>
+  </data>
+  <data name="Settings_Hotkeys" xml:space="preserve">
+    <value>Global shortcuts</value>
+  </data>
+  <data name="Settings_HotkeysHint" xml:space="preserve">
+    <value>Format e.g. Ctrl+Alt+D</value>
+  </data>
+  <data name="Settings_HotkeyDnd" xml:space="preserve">
+    <value>All → Do not disturb 1 h</value>
+  </data>
+  <data name="Settings_HotkeyReset" xml:space="preserve">
+    <value>All → Reset</value>
+  </data>
+  <data name="Settings_OpenConfig" xml:space="preserve">
+    <value>Open config.json</value>
+  </data>
+</root>

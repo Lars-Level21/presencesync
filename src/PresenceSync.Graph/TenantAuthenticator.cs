@@ -1,3 +1,4 @@
+using PresenceSync.Core.Resources;
 using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Client;
 using Microsoft.Identity.Client.Broker;
@@ -66,7 +67,7 @@ public sealed class TenantAuthenticator
     private static string ValidateTenant(string tenant) =>
         PresenceSync.Core.Configuration.TenantInput.IsValid(tenant)
             ? tenant.Trim()
-            : throw new ArgumentException("Ungültige Tenant-ID oder Domain.", nameof(tenant));
+            : throw new ArgumentException("Invalid tenant ID or domain.", nameof(tenant));
 
     /// <summary>Tenant ID (GUID) or domain the authority was built with.</summary>
     public string Tenant { get; }
@@ -93,7 +94,7 @@ public sealed class TenantAuthenticator
             else if (AllowOperatingSystemAccount && _useBroker)
                 request = _app.AcquireTokenSilent(PresenceScopes, PublicClientApplication.OperatingSystemAccount);
             else
-                throw new TenantAccessException(TenantFailureKind.AuthRequired, "Noch nicht angemeldet");
+                throw new TenantAccessException(TenantFailureKind.AuthRequired, new LocalizedMessage(nameof(Strings.Error_NotSignedIn)));
 
             var result = await request.WithForceRefresh(forceRefresh).ExecuteAsync(ct);
             if (Upn is null)
@@ -102,9 +103,9 @@ public sealed class TenantAuthenticator
                 // never a guest identity of the Windows account in a foreign tenant.
                 var home = result.Account.HomeAccountId?.TenantId;
                 if (home is null || !string.Equals(home, result.TenantId, StringComparison.OrdinalIgnoreCase))
-                    throw new TenantAccessException(TenantFailureKind.AuthRequired, "Windows-Konto gehört nicht zu diesem Tenant – bitte anmelden");
+                    throw new TenantAccessException(TenantFailureKind.AuthRequired, new LocalizedMessage(nameof(Strings.Error_WindowsAccountNotInTenant)));
                 Upn = result.Account.Username;
-                _log.LogInformation("Automatisch mit Windows-Konto angemeldet: {Upn} in Tenant {TenantId}", Mask.Upn(Upn), result.TenantId);
+                _log.LogInformation("Signed in automatically with Windows account: {Upn} in tenant {TenantId}", Mask.Upn(Upn), result.TenantId);
             }
             return result.AccessToken;
         }
@@ -124,7 +125,7 @@ public sealed class TenantAuthenticator
 
             var result = await request.ExecuteAsync(ct);
             Upn = result.Account.Username;
-            _log.LogInformation("Anmeldung erfolgreich: {Upn} in Tenant {TenantId}", Mask.Upn(Upn), result.TenantId);
+            _log.LogInformation("Sign-in successful: {Upn} in tenant {TenantId}", Mask.Upn(Upn), result.TenantId);
             return result;
         }
         catch (MsalException ex)
@@ -144,22 +145,22 @@ public sealed class TenantAuthenticator
     internal static TenantAccessException Map(MsalException ex)
     {
         if (ex is MsalClientException { ErrorCode: MsalError.AuthenticationCanceledError })
-            return new TenantAccessException(TenantFailureKind.AuthRequired, "Anmeldung abgebrochen", inner: ex);
+            return new TenantAccessException(TenantFailureKind.AuthRequired, new LocalizedMessage(nameof(Strings.Error_SignInCanceled)), inner: ex);
 
         if (AadErrorCatalog.Classify(ex.Message) is { } known)
-            return new TenantAccessException(known.Kind, known.Text, inner: ex);
+            return new TenantAccessException(known.Kind, known.Message, inner: ex);
 
         return ex switch
         {
             MsalUiRequiredException ui => new TenantAccessException(TenantFailureKind.AuthRequired,
-                $"Anmeldung erforderlich ({ui.ErrorCode})", inner: ex),
+                new LocalizedMessage(nameof(Strings.Error_SignInRequiredCode), ui.ErrorCode), inner: ex),
             MsalServiceException { StatusCode: 429 } svc => new TenantAccessException(TenantFailureKind.Throttled,
-                "Anmeldedienst drosselt Anfragen", svc.Headers?.RetryAfter?.Delta, ex),
+                new LocalizedMessage(nameof(Strings.Error_AuthThrottled)), svc.Headers?.RetryAfter?.Delta, ex),
             MsalServiceException { StatusCode: >= 500 } => new TenantAccessException(TenantFailureKind.Transient,
-                "Anmeldedienst nicht erreichbar", inner: ex),
+                new LocalizedMessage(nameof(Strings.Error_AuthUnavailable)), inner: ex),
             MsalServiceException svc => new TenantAccessException(TenantFailureKind.AuthRequired,
-                $"Anmeldung fehlgeschlagen ({svc.ErrorCode})", inner: ex),
-            _ => new TenantAccessException(TenantFailureKind.Transient, $"Anmeldung nicht möglich ({ex.ErrorCode})", inner: ex),
+                new LocalizedMessage(nameof(Strings.Error_SignInFailedCode), svc.ErrorCode), inner: ex),
+            _ => new TenantAccessException(TenantFailureKind.Transient, new LocalizedMessage(nameof(Strings.Error_SignInNotPossible), ex.ErrorCode), inner: ex),
         };
     }
 }

@@ -1,0 +1,557 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Presence_Unknown" xml:space="preserve">
+    <value>Unbekannt</value>
+  </data>
+  <data name="Presence_InACall" xml:space="preserve">
+    <value>Im Anruf</value>
+  </data>
+  <data name="Presence_InAConferenceCall" xml:space="preserve">
+    <value>In Telefonkonferenz</value>
+  </data>
+  <data name="Presence_InAMeeting" xml:space="preserve">
+    <value>In Besprechung</value>
+  </data>
+  <data name="Presence_Presenting" xml:space="preserve">
+    <value>Präsentiert</value>
+  </data>
+  <data name="Presence_UrgentInterruptionsOnly" xml:space="preserve">
+    <value>Nur dringende Unterbrechungen</value>
+  </data>
+  <data name="Presence_OutOfOffice" xml:space="preserve">
+    <value>Abwesenheitsnotiz</value>
+  </data>
+  <data name="Presence_OffWork" xml:space="preserve">
+    <value>Feierabend</value>
+  </data>
+  <data name="Presence_Available" xml:space="preserve">
+    <value>Verfügbar</value>
+  </data>
+  <data name="Presence_AvailableIdle" xml:space="preserve">
+    <value>Verfügbar (inaktiv)</value>
+  </data>
+  <data name="Presence_Busy" xml:space="preserve">
+    <value>Beschäftigt</value>
+  </data>
+  <data name="Presence_BusyIdle" xml:space="preserve">
+    <value>Beschäftigt (inaktiv)</value>
+  </data>
+  <data name="Presence_DoNotDisturb" xml:space="preserve">
+    <value>Nicht stören</value>
+  </data>
+  <data name="Presence_BeRightBack" xml:space="preserve">
+    <value>Gleich zurück</value>
+  </data>
+  <data name="Presence_Away" xml:space="preserve">
+    <value>Abwesend</value>
+  </data>
+  <data name="Presence_Offline" xml:space="preserve">
+    <value>Offline</value>
+  </data>
+  <data name="Tenant_Disabled" xml:space="preserve">
+    <value>Deaktiviert</value>
+  </data>
+  <data name="Tenant_SignInRequired" xml:space="preserve">
+    <value>Anmeldung erforderlich</value>
+  </data>
+  <data name="Tenant_Blocked" xml:space="preserve">
+    <value>Gesperrt: {0}</value>
+  </data>
+  <data name="Tenant_Pending" xml:space="preserve">
+    <value>…</value>
+  </data>
+  <data name="Tenant_RoleSource" xml:space="preserve">
+    <value>{0} (Quelle)</value>
+  </data>
+  <data name="Tenant_RoleSynced" xml:space="preserve">
+    <value>{0} (Sync)</value>
+  </data>
+  <data name="Tenant_RoleManual" xml:space="preserve">
+    <value>{0} (manuell)</value>
+  </data>
+  <data name="Error_WithCode" xml:space="preserve">
+    <value>{0} ({1})</value>
+  </data>
+  <data name="Error_NotSignedIn" xml:space="preserve">
+    <value>Noch nicht angemeldet</value>
+  </data>
+  <data name="Error_WindowsAccountNotInTenant" xml:space="preserve">
+    <value>Windows-Konto gehört nicht zu diesem Tenant – bitte anmelden</value>
+  </data>
+  <data name="Error_SignInCanceled" xml:space="preserve">
+    <value>Anmeldung abgebrochen</value>
+  </data>
+  <data name="Error_SignInRequiredCode" xml:space="preserve">
+    <value>Anmeldung erforderlich ({0})</value>
+  </data>
+  <data name="Error_AuthThrottled" xml:space="preserve">
+    <value>Anmeldedienst drosselt Anfragen</value>
+  </data>
+  <data name="Error_AuthUnavailable" xml:space="preserve">
+    <value>Anmeldedienst nicht erreichbar</value>
+  </data>
+  <data name="Error_SignInFailedCode" xml:space="preserve">
+    <value>Anmeldung fehlgeschlagen ({0})</value>
+  </data>
+  <data name="Error_SignInNotPossible" xml:space="preserve">
+    <value>Anmeldung nicht möglich ({0})</value>
+  </data>
+  <data name="Error_Network" xml:space="preserve">
+    <value>Netzwerkfehler</value>
+  </data>
+  <data name="Error_GraphTimeout" xml:space="preserve">
+    <value>Zeitüberschreitung bei Microsoft Graph</value>
+  </data>
+  <data name="Error_GraphThrottled" xml:space="preserve">
+    <value>Microsoft Graph drosselt oder ist nicht verfügbar ({0})</value>
+  </data>
+  <data name="Error_TokenRejected" xml:space="preserve">
+    <value>Token abgelehnt ({0})</value>
+  </data>
+  <data name="Error_AccessDenied" xml:space="preserve">
+    <value>Zugriff verweigert – Consent oder Teams-Lizenz prüfen ({0})</value>
+  </data>
+  <data name="Error_Graph" xml:space="preserve">
+    <value>Microsoft-Graph-Fehler ({0})</value>
+  </data>
+  <data name="Error_NotFound" xml:space="preserve">
+    <value>Nicht gefunden ({0})</value>
+  </data>
+  <data name="Error_TenantNotConfigured" xml:space="preserve">
+    <value>Tenant nicht konfiguriert</value>
+  </data>
+  <data name="Error_UserIdUnavailable" xml:space="preserve">
+    <value>Benutzer-ID nicht ermittelbar</value>
+  </data>
+  <data name="Error_Unexpected" xml:space="preserve">
+    <value>Unerwarteter Fehler: {0}</value>
+  </data>
+  <data name="Aad_MfaRequired" xml:space="preserve">
+    <value>MFA erforderlich – bitte anmelden</value>
+  </data>
+  <data name="Aad_MfaRegistrationRequired" xml:space="preserve">
+    <value>MFA-Registrierung erforderlich – bitte anmelden</value>
+  </data>
+  <data name="Aad_MfaExpired" xml:space="preserve">
+    <value>MFA abgelaufen – bitte anmelden</value>
+  </data>
+  <data name="Aad_PasswordChanged" xml:space="preserve">
+    <value>Anmeldung abgelaufen (Passwort geändert?) – bitte anmelden</value>
+  </data>
+  <data name="Aad_Inactivity" xml:space="preserve">
+    <value>Anmeldung abgelaufen (Inaktivität) – bitte anmelden</value>
+  </data>
+  <data name="Aad_SessionExpiredByPolicy" xml:space="preserve">
+    <value>Sitzung durch Conditional Access abgelaufen – bitte anmelden</value>
+  </data>
+  <data name="Aad_NoSession" xml:space="preserve">
+    <value>Keine Anmeldesitzung vorhanden – bitte anmelden</value>
+  </data>
+  <data name="Aad_ConsentMissing" xml:space="preserve">
+    <value>Zustimmung (Consent) fehlt – bitte anmelden und zustimmen</value>
+  </data>
+  <data name="Aad_CompliantDevice" xml:space="preserve">
+    <value>Conditional Access verlangt ein konformes (compliant) Gerät</value>
+  </data>
+  <data name="Aad_DomainJoinedDevice" xml:space="preserve">
+    <value>Conditional Access verlangt ein in die Domäne eingebundenes Gerät</value>
+  </data>
+  <data name="Aad_ApprovedClientApp" xml:space="preserve">
+    <value>Conditional Access erlaubt diese App nicht (genehmigte Client-App verlangt)</value>
+  </data>
+  <data name="Aad_BlockedByPolicy" xml:space="preserve">
+    <value>Zugriff durch Conditional Access blockiert</value>
+  </data>
+  <data name="Aad_ManagedDevice" xml:space="preserve">
+    <value>Conditional Access verlangt ein verwaltetes Gerät</value>
+  </data>
+  <data name="Aad_AdminConsentRequired" xml:space="preserve">
+    <value>Administratorgenehmigung erforderlich – Kunden-IT anfragen, siehe docs/consent.md</value>
+  </data>
+  <data name="Aad_ConsentDeclined" xml:space="preserve">
+    <value>Zustimmung (Consent) wurde abgelehnt</value>
+  </data>
+  <data name="Aad_AppNotFound" xml:space="preserve">
+    <value>App-Registrierung im Tenant nicht gefunden (Client-ID prüfen)</value>
+  </data>
+  <data name="Aad_NotAssigned" xml:space="preserve">
+    <value>Benutzer ist der App im Tenant nicht zugewiesen (Zuweisung erforderlich)</value>
+  </data>
+  <data name="Aad_AccountNotInTenant" xml:space="preserve">
+    <value>Konto existiert in diesem Tenant nicht</value>
+  </data>
+  <data name="Aad_AccountDisabled" xml:space="preserve">
+    <value>Konto ist deaktiviert</value>
+  </data>
+  <data name="Aad_AccountLocked" xml:space="preserve">
+    <value>Konto ist gesperrt</value>
+  </data>
+  <data name="Aad_AccountNotInTenantGuest" xml:space="preserve">
+    <value>Konto ist in diesem Tenant nicht vorhanden (Gast/Home-Tenant prüfen)</value>
+  </data>
+  <data name="Policy_HomeTenantDefaultName" xml:space="preserve">
+    <value>Home-Tenant</value>
+  </data>
+  <data name="Tray_Starting" xml:space="preserve">
+    <value>PresenceSync – startet …</value>
+  </data>
+  <data name="Tray_NotConfigured" xml:space="preserve">
+    <value>PresenceSync – nicht eingerichtet</value>
+  </data>
+  <data name="Tray_TooltipHeader" xml:space="preserve">
+    <value>PresenceSync – {0}</value>
+  </data>
+  <data name="Flyout_Starting" xml:space="preserve">
+    <value>Startet …</value>
+  </data>
+  <data name="Flyout_NotConfigured" xml:space="preserve">
+    <value>Nicht eingerichtet – Einstellungen öffnen</value>
+  </data>
+  <data name="Flyout_Paused" xml:space="preserve">
+    <value>Offline – Sync pausiert</value>
+  </data>
+  <data name="Flyout_NoTenants" xml:space="preserve">
+    <value>Noch keine Tenants eingerichtet</value>
+  </data>
+  <data name="Flyout_OneProblem" xml:space="preserve">
+    <value>1 Tenant braucht Aufmerksamkeit</value>
+  </data>
+  <data name="Flyout_Problems" xml:space="preserve">
+    <value>{0} Tenants brauchen Aufmerksamkeit</value>
+  </data>
+  <data name="Flyout_AutoSyncOff" xml:space="preserve">
+    <value>Auto-Sync ist aus</value>
+  </data>
+  <data name="Flyout_SyncActive" xml:space="preserve">
+    <value>Sync aktiv – Quelle: {0}</value>
+  </data>
+  <data name="Flyout_AllAvailable" xml:space="preserve">
+    <value>Alle verfügbar</value>
+  </data>
+  <data name="Flyout_Settings" xml:space="preserve">
+    <value>Einstellungen</value>
+  </data>
+  <data name="Flyout_EmptyHint" xml:space="preserve">
+    <value>Noch keine Tenants. Über die Einstellungen hinzufügen.</value>
+  </data>
+  <data name="Flyout_SignIn" xml:space="preserve">
+    <value>Anmelden</value>
+  </data>
+  <data name="Flyout_TenantMenuTooltip" xml:space="preserve">
+    <value>Status für diesen Tenant</value>
+  </data>
+  <data name="Flyout_AllTenants" xml:space="preserve">
+    <value>Alle Tenants</value>
+  </data>
+  <data name="Flyout_QuickDnd" xml:space="preserve">
+    <value>Nicht stören · 1 h</value>
+  </data>
+  <data name="Flyout_QuickBusy" xml:space="preserve">
+    <value>Beschäftigt · 1 h</value>
+  </data>
+  <data name="Flyout_QuickBrb" xml:space="preserve">
+    <value>Gleich zurück · 30 min</value>
+  </data>
+  <data name="Flyout_More" xml:space="preserve">
+    <value>Weitere Status und Dauer …</value>
+  </data>
+  <data name="Flyout_OpenLog" xml:space="preserve">
+    <value>Log öffnen</value>
+  </data>
+  <data name="Flyout_Exit" xml:space="preserve">
+    <value>PresenceSync beenden</value>
+  </data>
+  <data name="Detail_ManualUntil" xml:space="preserve">
+    <value>Manuell bis {0}</value>
+  </data>
+  <data name="Detail_SessionUntil" xml:space="preserve">
+    <value>Sync-Session bis {0}</value>
+  </data>
+  <data name="Common_AutoSync" xml:space="preserve">
+    <value>Auto-Sync</value>
+  </data>
+  <data name="Common_Reset" xml:space="preserve">
+    <value>Zurücksetzen</value>
+  </data>
+  <data name="Common_Save" xml:space="preserve">
+    <value>Speichern</value>
+  </data>
+  <data name="Common_Cancel" xml:space="preserve">
+    <value>Abbrechen</value>
+  </data>
+  <data name="Duration_30Minutes" xml:space="preserve">
+    <value>30 Minuten</value>
+  </data>
+  <data name="Duration_1Hour" xml:space="preserve">
+    <value>1 Stunde</value>
+  </data>
+  <data name="Duration_2Hours" xml:space="preserve">
+    <value>2 Stunden</value>
+  </data>
+  <data name="Duration_EndOfDay" xml:space="preserve">
+    <value>Bis Tagesende</value>
+  </data>
+  <data name="Duration_Unlimited" xml:space="preserve">
+    <value>Unbegrenzt</value>
+  </data>
+  <data name="Menu_Open" xml:space="preserve">
+    <value>PresenceSync öffnen</value>
+  </data>
+  <data name="Menu_All" xml:space="preserve">
+    <value>Alle: {0}</value>
+  </data>
+  <data name="Menu_Settings" xml:space="preserve">
+    <value>Einstellungen …</value>
+  </data>
+  <data name="Menu_Exit" xml:space="preserve">
+    <value>Beenden</value>
+  </data>
+  <data name="Menu_InfoStatus" xml:space="preserve">
+    <value>Status: {0}</value>
+  </data>
+  <data name="Menu_InfoManual" xml:space="preserve">
+    <value>Manuell: {0} bis {1}</value>
+  </data>
+  <data name="Menu_SignIn" xml:space="preserve">
+    <value>Anmelden …</value>
+  </data>
+  <data name="Menu_SignInAgain" xml:space="preserve">
+    <value>Erneut anmelden …</value>
+  </data>
+  <data name="Menu_Enabled" xml:space="preserve">
+    <value>Aktiviert</value>
+  </data>
+  <data name="Notify_ConfigInvalid" xml:space="preserve">
+    <value>config.json ist ungültig und wird ignoriert:
+{0}
+
+{1}</value>
+  </data>
+  <data name="Notify_StartFailed" xml:space="preserve">
+    <value>PresenceSync konnte nicht starten</value>
+  </data>
+  <data name="Notify_SettingsNotApplied" xml:space="preserve">
+    <value>Einstellungen nicht übernommen</value>
+  </data>
+  <data name="Notify_TenantSignInRequired" xml:space="preserve">
+    <value>{0}: Anmeldung erforderlich</value>
+  </data>
+  <data name="Notify_TenantBlocked" xml:space="preserve">
+    <value>{0}: Tenant gesperrt</value>
+  </data>
+  <data name="Notify_FixInWindow" xml:space="preserve">
+    <value>Im PresenceSync-Fenster beheben.</value>
+  </data>
+  <data name="Notify_SignInFailed" xml:space="preserve">
+    <value>Anmeldung fehlgeschlagen</value>
+  </data>
+  <data name="Notify_NotConfiguredTitle" xml:space="preserve">
+    <value>PresenceSync ist nicht eingerichtet</value>
+  </data>
+  <data name="Notify_NotConfiguredText" xml:space="preserve">
+    <value>Client-ID und Tenants in den Einstellungen eintragen.</value>
+  </data>
+  <data name="Notify_ActionFailed" xml:space="preserve">
+    <value>Aktion fehlgeschlagen</value>
+  </data>
+  <data name="Notify_NoActiveTenantTitle" xml:space="preserve">
+    <value>Kein aktiver Tenant</value>
+  </data>
+  <data name="Notify_NoActiveTenantText" xml:space="preserve">
+    <value>Es ist kein angemeldeter, aktiver Tenant eingerichtet. Tenants in den Einstellungen hinzufügen und speichern.</value>
+  </data>
+  <data name="Notify_PartialStatusTitle" xml:space="preserve">
+    <value>Status nicht überall gesetzt</value>
+  </data>
+  <data name="Account_Guest" xml:space="preserve">
+    <value>Gastkonto</value>
+  </data>
+  <data name="Account_Member" xml:space="preserve">
+    <value>Mitgliedskonto</value>
+  </data>
+  <data name="Account_WithType" xml:space="preserve">
+    <value>{0} ({1})</value>
+  </data>
+  <data name="Replace_Title" xml:space="preserve">
+    <value>Konto im Tenant ersetzen?</value>
+  </data>
+  <data name="Replace_Text" xml:space="preserve">
+    <value>Für „{0}“ ist bereits ein Konto eingerichtet. PresenceSync synchronisiert pro Tenant genau ein Konto.
+
+Bisher:	{1}
+Neu:	{2}
+
+Soll das bisherige Konto durch das neue ersetzt werden?</value>
+  </data>
+  <data name="Replace_Button" xml:space="preserve">
+    <value>Ersetzen</value>
+  </data>
+  <data name="Settings_ClientIdMissingTitle" xml:space="preserve">
+    <value>Client-ID fehlt</value>
+  </data>
+  <data name="Settings_ClientIdMissingText" xml:space="preserve">
+    <value>Bitte zuerst die Client-ID der App-Registrierung eintragen (siehe docs/deployment.md).</value>
+  </data>
+  <data name="Settings_TenantInvalidTitle" xml:space="preserve">
+    <value>Tenant ungültig</value>
+  </data>
+  <data name="Settings_TenantInvalidText" xml:space="preserve">
+    <value>Tenant-ID (GUID) oder Domain eingeben, z. B. contoso.com – oder das Feld leer lassen.</value>
+  </data>
+  <data name="Settings_SignedInTitle" xml:space="preserve">
+    <value>Angemeldet</value>
+  </data>
+  <data name="Settings_SignedInExisting" xml:space="preserve">
+    <value>„{0}“ mit {1} angemeldet. Mit „Speichern“ übernehmen.</value>
+  </data>
+  <data name="Settings_AlreadySetUpTitle" xml:space="preserve">
+    <value>Bereits eingerichtet</value>
+  </data>
+  <data name="Settings_AlreadySetUpText" xml:space="preserve">
+    <value>„{0}“ ist schon mit {1} eingerichtet. Nichts geändert.</value>
+  </data>
+  <data name="Settings_NotChangedTitle" xml:space="preserve">
+    <value>Nicht geändert</value>
+  </data>
+  <data name="Settings_NotChangedText" xml:space="preserve">
+    <value>„{0}“ bleibt bei {1}.</value>
+  </data>
+  <data name="Settings_ReplacedTitle" xml:space="preserve">
+    <value>Konto ersetzt</value>
+  </data>
+  <data name="Settings_ReplacedText" xml:space="preserve">
+    <value>„{0}“: {1} → {2}. Mit „Speichern“ übernehmen.</value>
+  </data>
+  <data name="Settings_AddedText" xml:space="preserve">
+    <value>„{0}“ mit {1} hinzugefügt. Name bei Bedarf anpassen, dann „Speichern“.</value>
+  </data>
+  <data name="Settings_WindowTitle" xml:space="preserve">
+    <value>PresenceSync – Einstellungen</value>
+  </data>
+  <data name="Settings_Heading" xml:space="preserve">
+    <value>Einstellungen</value>
+  </data>
+  <data name="Settings_PolicyTitle" xml:space="preserve">
+    <value>Von Ihrer Organisation verwaltet</value>
+  </data>
+  <data name="Settings_PolicyText" xml:space="preserve">
+    <value>Einige Einstellungen sind per Richtlinie vorgegeben (Intune/Gruppenrichtlinie) und hier gesperrt.</value>
+  </data>
+  <data name="Settings_SectionConnection" xml:space="preserve">
+    <value>Verbindung</value>
+  </data>
+  <data name="Settings_ClientId" xml:space="preserve">
+    <value>Client-ID der App-Registrierung</value>
+  </data>
+  <data name="Settings_ClientIdHint" xml:space="preserve">
+    <value>Aus der App-Registrierung Ihrer Organisation, siehe docs/deployment.md</value>
+  </data>
+  <data name="Settings_SetByOrganization" xml:space="preserve">
+    <value>Von Ihrer Organisation vorgegeben</value>
+  </data>
+  <data name="Settings_UseBroker" xml:space="preserve">
+    <value>Windows-Anmeldung (WAM) verwenden</value>
+  </data>
+  <data name="Settings_UseBrokerHint" xml:space="preserve">
+    <value>Nutzt die in Windows und Teams angemeldeten Konten. Aus = Browser-Anmeldung.</value>
+  </data>
+  <data name="Settings_SectionTenants" xml:space="preserve">
+    <value>Tenants</value>
+  </data>
+  <data name="Settings_TenantsHint" xml:space="preserve">
+    <value>Jeder Tenant – auch der Home-Tenant – muss hier angemeldet sein. Auto-Sync braucht mindestens zwei aktive Tenants.</value>
+  </data>
+  <data name="Settings_DisplayName" xml:space="preserve">
+    <value>Anzeigename</value>
+  </data>
+  <data name="Settings_ManagedTenantHint" xml:space="preserve">
+    <value>Von Ihrer Organisation vorgegeben – bitte anmelden, falls noch kein Konto angezeigt wird</value>
+  </data>
+  <data name="Settings_Home" xml:space="preserve">
+    <value>Home</value>
+  </data>
+  <data name="Settings_HomeTooltip" xml:space="preserve">
+    <value>Kennzeichnet den Home-Tenant (nur Anzeige)</value>
+  </data>
+  <data name="Settings_Active" xml:space="preserve">
+    <value>Aktiv</value>
+  </data>
+  <data name="Settings_Off" xml:space="preserve">
+    <value>Aus</value>
+  </data>
+  <data name="Settings_RemoveTenant" xml:space="preserve">
+    <value>Tenant entfernen</value>
+  </data>
+  <data name="Settings_AddTenant" xml:space="preserve">
+    <value>Tenant hinzufügen</value>
+  </data>
+  <data name="Settings_AddTenantHint" xml:space="preserve">
+    <value>Konto aus der Windows-Kontoauswahl wählen – Tenant und Name werden automatisch übernommen.</value>
+  </data>
+  <data name="Settings_DisplayNameOptional" xml:space="preserve">
+    <value>Anzeigename (optional – sonst Name des Tenants)</value>
+  </data>
+  <data name="Settings_ChooseAccount" xml:space="preserve">
+    <value>Konto auswählen …</value>
+  </data>
+  <data name="Settings_Advanced" xml:space="preserve">
+    <value>Erweitert: Gastkonto oder bestimmter Tenant</value>
+  </data>
+  <data name="Settings_AdvancedHint" xml:space="preserve">
+    <value>Nur nötig für Gastkonten (B2B): Ohne Angabe landet ein Gast in seinem Heimat-Tenant. Tenant-ID oder Domain des Kunden-Tenants eintragen, dann „Konto auswählen …“.</value>
+  </data>
+  <data name="Settings_TenantPlaceholder" xml:space="preserve">
+    <value>Tenant-ID oder Domain (z. B. contoso.com)</value>
+  </data>
+  <data name="Settings_SectionSync" xml:space="preserve">
+    <value>Synchronisation</value>
+  </data>
+  <data name="Settings_AutoSyncHint" xml:space="preserve">
+    <value>Call, Meeting, Präsentation oder DnD in einem Tenant setzt alle anderen auf beschäftigt.</value>
+  </data>
+  <data name="Settings_PollInterval" xml:space="preserve">
+    <value>Abfrageintervall (Sekunden)</value>
+  </data>
+  <data name="Settings_PollIntervalHint" xml:space="preserve">
+    <value>Wie oft der Status aller Tenants gelesen wird. 10–300, Standard 20.</value>
+  </data>
+  <data name="Settings_SessionExpiration" xml:space="preserve">
+    <value>Ablauf der Sync-Session (Minuten)</value>
+  </data>
+  <data name="Settings_SessionExpirationHint" xml:space="preserve">
+    <value>Läuft von selbst aus, falls die App abstürzt. 5–240, Standard 5.</value>
+  </data>
+  <data name="Settings_SectionStartup" xml:space="preserve">
+    <value>Start und Tastenkürzel</value>
+  </data>
+  <data name="Settings_Autostart" xml:space="preserve">
+    <value>Mit Windows starten</value>
+  </data>
+  <data name="Settings_Hotkeys" xml:space="preserve">
+    <value>Globale Tastenkürzel</value>
+  </data>
+  <data name="Settings_HotkeysHint" xml:space="preserve">
+    <value>Format z. B. Ctrl+Alt+D</value>
+  </data>
+  <data name="Settings_HotkeyDnd" xml:space="preserve">
+    <value>Alle → Nicht stören 1 h</value>
+  </data>
+  <data name="Settings_HotkeyReset" xml:space="preserve">
+    <value>Alle → Zurücksetzen</value>
+  </data>
+  <data name="Settings_OpenConfig" xml:space="preserve">
+    <value>config.json öffnen</value>
+  </data>
+</root>

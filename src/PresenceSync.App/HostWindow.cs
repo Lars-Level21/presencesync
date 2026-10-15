@@ -38,19 +38,19 @@ internal sealed class HostWindow : IDisposable
     {
         if (!TryParse(definition, out var modifiers, out var virtualKey))
         {
-            log.LogWarning("Hotkey ungültig: {Hotkey}", definition);
+            log.LogWarning("Invalid hotkey: {Hotkey}", definition);
             return false;
         }
 
         var id = _nextId++;
         if (!RegisterHotKey(Handle, id, modifiers | ModNoRepeat, (uint)virtualKey))
         {
-            log.LogWarning("Hotkey {Hotkey} konnte nicht registriert werden (bereits belegt?)", definition);
+            log.LogWarning("Hotkey {Hotkey} could not be registered (already in use?)", definition);
             return false;
         }
 
         _hotkeys[id] = action;
-        log.LogInformation("Hotkey {Hotkey} registriert", definition);
+        log.LogInformation("Hotkey {Hotkey} registered", definition);
         return true;
     }
 

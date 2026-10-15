@@ -1,90 +1,89 @@
-# PresenceSync bereitstellen
+# Deploying PresenceSync
 
-Für IT-Abteilungen, die PresenceSync ihren Mitarbeitern zur Verfügung stellen – und für Einzelnutzer, die nur
-Abschnitt 1 brauchen. Was die App tut und wie sie aufgebaut ist: [README](../README.md),
-[architecture.md](architecture.md).
+For IT departments that provide PresenceSync to their employees – and for individual users, who only need section 1.
+What the app does and how it is built: [README](../README.md), [architecture.md](architecture.md).
 
-**Ablauf**
+**Process**
 
-1. [App-Registrierung](#1-app-registrierung) im Tenant der Organisation anlegen und den Herausgeber verifizieren – einmalig.
-2. [Richtlinien](#2-richtlinien) setzen: Client-ID und optional Home-Tenant zentral vorgeben.
-3. [App verteilen](#3-app-verteilen), z. B. als Intune-Win32-App.
-4. [Kunden-Tenants anbinden](#4-kunden-tenants-anbinden): Die Mitarbeiter fügen ihre Kunden-Tenants hinzu; wo nötig,
-   erteilt die Kunden-IT die Zustimmung.
+1. [Create the app registration](#1-app-registration) in the organization's tenant and verify the publisher – once.
+2. [Set policies](#2-policies): centrally set the client ID and optionally the home tenant.
+3. [Distribute the app](#3-distribute-the-app), e.g. as an Intune Win32 app.
+4. [Connect customer tenants](#4-connect-customer-tenants): employees add their customer tenants; where required,
+   the customer's IT grants consent.
 
-## 1. App-Registrierung
+## 1. App registration
 
-PresenceSync braucht genau **eine** App-Registrierung im Tenant der Organisation. Sie ist Multi-Tenant; in jedem
-Kunden-Tenant entsteht beim ersten Login bzw. beim Admin-Consent automatisch eine Unternehmensanwendung
-(Service Principal). Mitarbeiter legen keine eigenen App-Registrierungen an.
+PresenceSync needs exactly **one** app registration in the organization's tenant. It is multi-tenant; in each
+customer tenant an enterprise application (service principal) is created automatically on first sign-in or on admin
+consent. Employees do not create their own app registrations.
 
-### Eckdaten
+### Key settings
 
-| Einstellung | Wert |
+| Setting | Value |
 | --- | --- |
-| Unterstützte Kontotypen | Konten in einem beliebigen Organisationsverzeichnis (`AzureADMultipleOrgs`) |
-| Plattform | Mobile- und Desktopanwendungen |
-| Redirect URIs | `ms-appx-web://microsoft.aad.brokerplugin/{clientId}` (Windows-Anmeldung) und `http://localhost` (Browser-Fallback) |
-| Öffentliche Clientflows zulassen | Ja |
-| Secrets / Zertifikate | keine |
-| API-Berechtigungen (Microsoft Graph, delegiert) | `User.Read`, `Presence.ReadWrite`, `offline_access` |
+| Supported account types | Accounts in any organizational directory (`AzureADMultipleOrgs`) |
+| Platform | Mobile and desktop applications |
+| Redirect URIs | `ms-appx-web://microsoft.aad.brokerplugin/{clientId}` (Windows sign-in) and `http://localhost` (browser fallback) |
+| Allow public client flows | Yes |
+| Secrets / certificates | none |
+| API permissions (Microsoft Graph, delegated) | `User.Read`, `Presence.ReadWrite`, `offline_access` |
 
-### Anlegen per Skript (Azure CLI)
+### Create via script (Azure CLI)
 
 ```powershell
 az login --tenant <tenant-id> --allow-no-subscriptions
 ./scripts/New-AppRegistration.ps1 -DisplayName "PresenceSync" -MpnId <PartnerGlobal-ID>
 ```
 
-Das Skript legt die Registrierung an, setzt beide Redirect URIs, trägt die drei delegierten Berechtigungen ein (die
-IDs liest es zur Laufzeit aus Microsoft Graph), erzeugt den Service Principal im eigenen Tenant und setzt optional
-den verifizierten Herausgeber. Die ausgegebene `appId` ist die **Client-ID**.
+The script creates the registration, sets both redirect URIs, adds the three delegated permissions (it reads their
+IDs from Microsoft Graph at runtime), creates the service principal in your own tenant and optionally sets the
+verified publisher. The `appId` it outputs is the **client ID**.
 
-### Anlegen im Portal
+### Create in the portal
 
-1. Entra Admin Center → *Anwendungen* → *App-Registrierungen* → *Neue Registrierung*
-   - Name `PresenceSync`, Kontotyp *Konten in einem beliebigen Organisationsverzeichnis*
-   - Redirect URI: Plattform *Öffentlicher Client/nativ (mobil und Desktop)*, `http://localhost`
-2. *Authentifizierung* → *Plattform hinzufügen* → *Mobile- und Desktopanwendungen* →
-   `ms-appx-web://microsoft.aad.brokerplugin/<clientId>` ergänzen; *Öffentliche Clientflows zulassen* = **Ja**.
-3. *API-Berechtigungen* → Microsoft Graph → *Delegiert*: `User.Read`, `Presence.ReadWrite`, `offline_access`.
-4. *Branding & Eigenschaften*: optional Herausgeberdomäne und Logo hinterlegen – Kunden-Admins sehen diese Angaben im
-   Consent-Dialog.
-5. Herausgeber verifizieren (nächster Abschnitt).
+1. Entra admin center → *Applications* → *App registrations* → *New registration*
+   - Name `PresenceSync`, account type *Accounts in any organizational directory*
+   - Redirect URI: platform *Public client/native (mobile & desktop)*, `http://localhost`
+2. *Authentication* → *Add a platform* → *Mobile and desktop applications* →
+   add `ms-appx-web://microsoft.aad.brokerplugin/<clientId>`; *Allow public client flows* = **Yes**.
+3. *API permissions* → Microsoft Graph → *Delegated*: `User.Read`, `Presence.ReadWrite`, `offline_access`.
+4. *Branding & properties*: optionally add a publisher domain and logo – customer admins see this information in the
+   consent dialog.
+5. Verify the publisher (next section).
 
-### Herausgeber-Verifizierung
+### Publisher verification
 
-**Wozu:** Für neu registrierte Multi-Tenant-Apps **ohne** verifizierten Herausgeber blockiert Microsoft die Zustimmung
-durch Benutzer weitgehend; viele Tenants erlauben sie zudem nur für verifizierte Herausgeber. Ohne Verifizierung sehen
-Mitarbeiter in Kunden-Tenants „Administratorgenehmigung erforderlich“ (`AADSTS90094`). Mit Verifizierung zeigt der
-Consent-Dialog den Herausgeber mit blauem Haken, und die Low-Privilege-Berechtigungen von PresenceSync dürfen Benutzer
-in der Regel selbst freigeben – sofern die Kunden-IT das nicht generell abgeschaltet hat. Die Verifizierung wird
-einmal gesetzt und gilt für alle Kunden-Tenants.
+**Why:** For newly registered multi-tenant apps **without** a verified publisher, Microsoft largely blocks user
+consent; many tenants also only allow it for verified publishers. Without verification, employees in customer tenants
+see "Need admin approval" (`AADSTS90094`). With verification, the consent dialog shows the publisher with a blue
+check mark, and users can usually consent to PresenceSync's low-privilege permissions themselves – unless the
+customer's IT has turned that off entirely. Verification is set once and applies to all customer tenants.
 
-**Voraussetzungen**
+**Prerequisites**
 
-| Was | Wo prüfen |
+| What | Where to check |
 | --- | --- |
-| Partnerkonto im Microsoft AI Cloud Partner Program (früher MPN), Verifizierung abgeschlossen („authorized“/„success“) | [Partner Center → Partner profile](https://partner.microsoft.com/pcv/accountsettings/connectedpartnerprofile) |
-| **Partner-ID vom Typ `PartnerGlobal`** – die Standort-ID (*PartnerLocation*) sieht fast gleich aus und wird abgelehnt | Partner Center → Account settings → *Identifiers* → *Microsoft Cloud Partners Program* → Spalte *Type* |
-| Die Domain der Primary-Contact-E-Mail im Partner Center ist im Tenant als Custom Domain DNS-verifiziert | Entra Admin Center → *Domain names* |
-| Entra-Rolle *Application Administrator* oder *Cloud Application Administrator* | Entra Admin Center → *Roles & admins* |
-| Partner-Center-Rolle *Global Admin*, *AI Cloud Partner Program Admin* oder *Accounts Admin* für denselben Benutzer | [Partner Center → User management](https://partner.microsoft.com/pcv/users) |
-| Anmeldung **mit MFA in derselben Sitzung** | im Zweifel ab- und neu anmelden |
+| Partner account in the Microsoft AI Cloud Partner Program (formerly MPN), verification completed ("authorized"/"success") | [Partner Center → Partner profile](https://partner.microsoft.com/pcv/accountsettings/connectedpartnerprofile) |
+| **Partner ID of type `PartnerGlobal`** – the location ID (*PartnerLocation*) looks almost the same and is rejected | Partner Center → Account settings → *Identifiers* → *Microsoft Cloud Partners Program* → column *Type* |
+| The domain of the primary contact e-mail in Partner Center is DNS-verified as a custom domain in the tenant | Entra admin center → *Domain names* |
+| Entra role *Application Administrator* or *Cloud Application Administrator* | Entra admin center → *Roles & admins* |
+| Partner Center role *Global Admin*, *AI Cloud Partner Program Admin* or *Accounts Admin* for the same user | [Partner Center → User management](https://partner.microsoft.com/pcv/users) |
+| Sign-in **with MFA in the same session** | if in doubt, sign out and sign in again |
 
-**Schritte**
+**Steps**
 
-1. [Entra Admin Center](https://entra.microsoft.com) → *App registrations* → **PresenceSync** → **Branding & properties**.
-2. **Publisher domain**: steht dort `*.onmicrosoft.com`, über *Update domain* die eigene verifizierte Domain wählen.
-3. **Publisher verification** → **Add MPN ID to verify publisher** → im Panel die **PartnerGlobal**-ID eintragen →
+1. [Entra admin center](https://entra.microsoft.com) → *App registrations* → **PresenceSync** → **Branding & properties**.
+2. **Publisher domain**: if it shows `*.onmicrosoft.com`, select your own verified domain via *Update domain*.
+3. **Publisher verification** → **Add MPN ID to verify publisher** → enter the **PartnerGlobal** ID in the panel →
    **Verify and save**.
-4. Danach zeigt *Branding & properties* die MPN-ID und den **Publisher display name** mit blauem Haken. Der Name stammt
-   aus dem Partner-Center-Profil und sollte der Firmenname sein; ändern nur dort, danach *Check for updates*.
+4. *Branding & properties* then shows the MPN ID and the **Publisher display name** with a blue check mark. The name
+   comes from the Partner Center profile and should be the company name; change it only there, then *Check for updates*.
 
-Per Skript erledigt `-MpnId <PartnerGlobal-ID>` Schritt 3; die Publisher Domain (Schritt 2) muss vorher gesetzt sein.
+With the script, `-MpnId <PartnerGlobal-ID>` performs step 3; the publisher domain (step 2) must be set beforehand.
 
-**Fehlersuche:** Das Portal zeigt bei vielen Prüffehlern nur *„There's a temporary problem with the service“*. Den
-echten Fehlercode liefert derselbe Aufruf direkt gegen Graph (Object-ID der App, nicht die Client-ID):
+**Troubleshooting:** For many validation errors the portal only shows *"There's a temporary problem with the
+service"*. The same call made directly against Graph returns the real error code (object ID of the app, not the
+client ID):
 
 ```powershell
 $objectId = az ad app show --id <clientId> --query id -o tsv
@@ -92,130 +91,130 @@ $objectId = az ad app show --id <clientId> --query id -o tsv
 az rest --method POST --uri "https://graph.microsoft.com/v1.0/applications/$objectId/setVerifiedPublisher" --headers "Content-Type=application/json" --body "@$env:TEMP\pv.json"
 ```
 
-| Fehlercode | Ursache | Abhilfe |
+| Error code | Cause | Fix |
 | --- | --- | --- |
-| `MPNGlobalAccountNotFound`, `MPNAccountInvalid`, `NoPublisherIdOnAssociatedMPNAccount` | falsche ID, meist die Standort-ID | ID vom Typ `PartnerGlobal` verwenden |
-| `MPNAccountNotFoundOrNoAccess` | Partner-Center-Rolle fehlt oder Tenant nicht mit dem Partnerkonto verknüpft | *User management* bzw. *Tenant management* prüfen |
-| `MPNAccountNotVetted` | Partner-Verifizierung nicht abgeschlossen | offene Aktionen im Partnerprofil erledigen |
-| `NoPublisherDomainOnApplication`, `PublisherDomainMismatch` | Publisher Domain fehlt oder passt nicht zur Primary-Contact-Domain | Schritt 2; Domain im Tenant verifizieren |
-| `NotAuthorizedToVerifyPublisher` | Entra-Rolle fehlt | *Application Administrator* zuweisen lassen |
-| `InteractionRequired` | keine MFA in der Sitzung | neu anmelden mit MFA |
-| `UnableToAddPublisher`, `UserUnableToAddPublisher` | Risikobewertung von Microsoft | Benutzerrisiko prüfen bzw. später erneut versuchen |
+| `MPNGlobalAccountNotFound`, `MPNAccountInvalid`, `NoPublisherIdOnAssociatedMPNAccount` | wrong ID, usually the location ID | use the ID of type `PartnerGlobal` |
+| `MPNAccountNotFoundOrNoAccess` | Partner Center role missing or tenant not linked to the partner account | check *User management* or *Tenant management* |
+| `MPNAccountNotVetted` | partner verification not completed | complete the open actions in the partner profile |
+| `NoPublisherDomainOnApplication`, `PublisherDomainMismatch` | publisher domain missing or does not match the primary contact domain | step 2; verify the domain in the tenant |
+| `NotAuthorizedToVerifyPublisher` | Entra role missing | have *Application Administrator* assigned |
+| `InteractionRequired` | no MFA in the session | sign in again with MFA |
+| `UnableToAddPublisher`, `UserUnableToAddPublisher` | Microsoft risk assessment | check user risk or try again later |
 
-Vollständige Liste: [Troubleshoot publisher verification](https://learn.microsoft.com/entra/identity-platform/troubleshoot-publisher-verification).
+Full list: [Troubleshoot publisher verification](https://learn.microsoft.com/entra/identity-platform/troubleshoot-publisher-verification).
 
-## 2. Richtlinien
+## 2. Policies
 
-Mit Richtlinien gibt die Organisation die Client-ID vor; Mitarbeiter können sie in der App nicht ändern.
+With policies the organization sets the client ID; employees cannot change it in the app.
 
-Registry-Schlüssel `SOFTWARE\Policies\PresenceSync` unter `HKLM` (Computer) oder `HKCU` (Benutzer). Die
-Computerrichtlinie hat je Wert Vorrang vor der Benutzerrichtlinie; beide haben Vorrang vor der `config.json`.
+Registry key `SOFTWARE\Policies\PresenceSync` under `HKLM` (computer) or `HKCU` (user). For each value, the computer
+policy takes precedence over the user policy; both take precedence over `config.json`.
 
-| Wert | Typ | Wirkung |
+| Value | Type | Effect |
 | --- | --- | --- |
-| `ClientId` | REG_SZ (GUID) | Client-ID der App-Registrierung. Wird verwendet und in den Einstellungen gesperrt („Von Ihrer Organisation vorgegeben“). |
-| `AllowCustomClientId` | REG_DWORD 0/1 | 1 = `ClientId` ist nur ein Vorschlag für eine leere Einstellung. Standard 0. |
-| `HomeTenantId` | REG_SZ (GUID) | Home-Tenant wird automatisch angelegt, als *Home* markiert und ist nicht entfernbar. Ist das Windows-Konto ein Mitgliedskonto dieses Tenants, meldet sich die App **ohne Benutzerinteraktion** an; sonst genügt ein Klick auf *Anmelden*. |
+| `ClientId` | REG_SZ (GUID) | Client ID of the app registration. Used and locked in the settings ("Set by your organization"). |
+| `AllowCustomClientId` | REG_DWORD 0/1 | 1 = `ClientId` is only a default for an empty setting. Default 0. |
+| `HomeTenantId` | REG_SZ (GUID) | The home tenant is added automatically, marked as *Home* and cannot be removed. If the Windows account is a member account of this tenant, the app signs in **without user interaction**; otherwise a click on *Sign in …* is enough. |
 
-- Ungültige Werte (keine GUID) werden ignoriert und im Log vermerkt.
-- `SOFTWARE\Policies` ist in beiden Zweigen von Windows geschützt: Standardbenutzer können die Werte weder anlegen
-  noch ändern.
-- Die App liest die Richtlinie beim Start und vor jedem Speichern der Einstellungen. Solange eine Richtlinie aktiv ist,
-  zeigen die Einstellungen „Von Ihrer Organisation verwaltet“.
-- Die automatische Anmeldung akzeptiert nur ein **Mitgliedskonto genau dieses Tenants**, keine Gast-Identität des
-  Windows-Kontos in einem fremden Tenant.
+- Invalid values (not a GUID) are ignored and noted in the log.
+- `SOFTWARE\Policies` is protected by Windows in both hives: standard users can neither create nor change the values.
+- The app reads the policy at startup and before every save of the settings. While a policy is active, the settings
+  show "Managed by your organization".
+- Automatic sign-in only accepts a **member account of exactly this tenant**, not a guest identity of the Windows
+  account in another tenant.
 
-### Intune mit importierter ADMX-Vorlage (empfohlen)
+### Intune with imported ADMX template (recommended)
 
-1. *Intune Admin Center → Geräte → Konfiguration → Importieren (ADMX)*: `deploy/admx/PresenceSync.admx` und
-   `deploy/admx/en-US/PresenceSync.adml` hochladen.
-2. *Richtlinie erstellen → Windows 10 und höher → Vorlagen → Importierte administrative Vorlagen*.
-3. Unter *Computerkonfiguration → PresenceSync* aktivieren: **Client-ID der App-Registrierung vorgeben**, optional
-   **Home-Tenant vorgeben**.
-4. Der Geräte- bzw. Benutzergruppe der Mitarbeiter zuweisen.
+1. *Intune admin center → Devices → Configuration → Import ADMX*: upload `deploy/admx/PresenceSync.admx` and
+   `deploy/admx/en-US/PresenceSync.adml`.
+2. *Create policy → Windows 10 and later → Templates → Imported Administrative templates*.
+3. Under *Computer Configuration → PresenceSync*, enable **Set the app registration client ID** and optionally
+   **Set the home tenant**.
+4. Assign it to the employees' device or user group.
 
-### Intune-Plattformskript
+### Intune platform script
 
-*Geräte → Skripts und Wartungen → Plattformskripts*: [`scripts/Set-PresenceSyncPolicy.ps1`](../scripts/Set-PresenceSyncPolicy.ps1)
-mit festen Parametern, *mit den Anmeldeinformationen des angemeldeten Benutzers ausführen* = **Nein** (SYSTEM),
-*64-Bit-PowerShell* = **Ja**.
+*Devices → Scripts and remediations → Platform scripts*: [`scripts/Set-PresenceSyncPolicy.ps1`](../scripts/Set-PresenceSyncPolicy.ps1)
+with fixed parameters, *Run this script using the logged on credentials* = **No** (SYSTEM),
+*Run script in 64 bit PowerShell Host* = **Yes**.
 
-Manuell als Administrator:
+Manually as administrator:
 
 ```powershell
 .\scripts\Set-PresenceSyncPolicy.ps1 -ClientId <client-id> -HomeTenantId <tenant-id>
 ```
 
-Entfernen: `.\scripts\Set-PresenceSyncPolicy.ps1 -Remove`
+Remove: `.\scripts\Set-PresenceSyncPolicy.ps1 -Remove`
 
-### Gruppenrichtlinie (Active Directory)
+### Group Policy (Active Directory)
 
-1. `deploy/admx/PresenceSync.admx` nach `\\<domäne>\SYSVOL\<domäne>\Policies\PolicyDefinitions\` kopieren,
-   `de-DE\PresenceSync.adml` und `en-US\PresenceSync.adml` in die gleichnamigen Unterordner.
-2. Gruppenrichtlinienverwaltung → *Computer- (oder Benutzer-)konfiguration → Richtlinien → Administrative Vorlagen →
+1. Copy `deploy/admx/PresenceSync.admx` to `\\<domain>\SYSVOL\<domain>\Policies\PolicyDefinitions\`, and
+   `de-DE\PresenceSync.adml` and `en-US\PresenceSync.adml` into the subfolders of the same name.
+2. Group Policy Management → *Computer (or User) Configuration → Policies → Administrative Templates →
    PresenceSync*.
 
-## 3. App verteilen
+## 3. Distribute the app
 
-### Intune-Win32-App
+### Intune Win32 app
 
-Paketordner:
+Package folder:
 
 ```
-PresenceSync-Paket\
-  PresenceSync.exe              aus dem Release, Prüfsumme kontrollieren (SECURITY.md)
+PresenceSync-Package\
+  PresenceSync.exe              from the release, verify the checksum (SECURITY.md)
   Install-PresenceSync.ps1      deploy/intune
   Uninstall-PresenceSync.ps1    deploy/intune
-  Set-PresenceSyncPolicy.ps1    scripts – nur, wenn die Richtlinie mit installiert werden soll
+  Set-PresenceSyncPolicy.ps1    scripts – only if the policy should be installed as well
 ```
 
-Mit dem *Microsoft Win32 Content Prep Tool* zu `.intunewin` packen und in Intune anlegen:
+Package it into an `.intunewin` with the *Microsoft Win32 Content Prep Tool* and create the app in Intune:
 
-| Einstellung | Wert |
+| Setting | Value |
 | --- | --- |
-| Installationsbefehl | `powershell.exe -ExecutionPolicy Bypass -NoProfile -File .\Install-PresenceSync.ps1` (optional `-ClientId <guid> -HomeTenantId <guid>`) |
-| Deinstallationsbefehl | `powershell.exe -ExecutionPolicy Bypass -NoProfile -File .\Uninstall-PresenceSync.ps1` |
-| Installationsverhalten | System |
-| Erkennungsregel | Datei `%ProgramFiles%\PresenceSync\PresenceSync.exe` vorhanden |
-| Anforderungen | Windows 10 1809+ oder Windows 11, x64 |
+| Install command | `powershell.exe -ExecutionPolicy Bypass -NoProfile -File .\Install-PresenceSync.ps1` (optional `-ClientId <guid> -HomeTenantId <guid>`) |
+| Uninstall command | `powershell.exe -ExecutionPolicy Bypass -NoProfile -File .\Uninstall-PresenceSync.ps1` |
+| Install behavior | System |
+| Detection rule | File `%ProgramFiles%\PresenceSync\PresenceSync.exe` exists |
+| Requirements | Windows 10 1809+ or Windows 11, x64 |
 
-Das Installationsskript legt die App nach `%ProgramFiles%\PresenceSync` und trägt einen Autostart für alle Benutzer
-ein. Die Richtlinie besser getrennt per ADMX verwalten – dann lässt sie sich ändern, ohne die App neu zu verteilen.
+The install script places the app in `%ProgramFiles%\PresenceSync` and registers autostart for all users. It is
+better to manage the policy separately via ADMX – then it can be changed without redistributing the app.
 
-> Die Release-Exe ist bewusst nicht signiert ([SECURITY.md](../SECURITY.md#bekannte-einschränkungen)). Mit AppLocker/WDAC
-> entweder per Hash freigeben oder aus dem Quellcode bauen und mit dem eigenen Zertifikat signieren. SmartScreen-Warnungen treten bei Verteilung über
-> Intune in der Regel nicht auf, da die Datei nicht aus dem Internet heruntergeladen wird.
+> The release exe is deliberately not signed ([SECURITY.md](../SECURITY.md#known-limitations)). With AppLocker/WDAC,
+> either allow it by hash or build it from source and sign it with your own certificate. SmartScreen warnings usually
+> do not occur when distributing via Intune, because the file is not downloaded from the internet.
 
-### Was Mitarbeiter danach erleben
+### What employees experience afterwards
 
-1. PresenceSync startet nach der Windows-Anmeldung im Infobereich.
-2. Mit `HomeTenantId` ist der Home-Tenant eingerichtet und meist bereits angemeldet.
-3. Kunden-Tenants fügen sie selbst hinzu (nächster Abschnitt).
+1. PresenceSync starts in the notification area after Windows sign-in.
+2. With `HomeTenantId`, the home tenant is set up and usually already signed in.
+3. Employees add customer tenants themselves (next section).
 
-## 4. Kunden-Tenants anbinden
+## 4. Connect customer tenants
 
-1. *Tray-Symbol → Zahnrad → Tenant hinzufügen → Konto auswählen …*, Konto des Kunden-Tenants wählen, **Speichern**.
-   Gastkonten (B2B): vorher unter *Erweitert* die Tenant-ID oder Domain des Kunden eintragen.
-2. Erlaubt der Kunden-Tenant die Zustimmung durch Benutzer, bestätigt der Mitarbeiter den Consent-Dialog selbst.
-3. Sonst erscheint „Administratorgenehmigung erforderlich“. Dann die Kunden-IT mit der
-   [Anfrage-Vorlage](consent-request-template.md) und [consent.md](consent.md) ansprechen – mit **Ihrer** Client-ID
-   und Ihrem Herausgebernamen eingesetzt. Nach der Freigabe den Tenant erneut hinzufügen.
+1. *Tray icon → gear icon → Add tenant → Choose account …*, pick the account of the customer tenant, **Save**.
+   Guest accounts (B2B): first enter the customer's tenant ID or domain under *Advanced: guest account or specific
+   tenant*.
+2. If the customer tenant allows user consent, the employee confirms the consent dialog themselves.
+3. Otherwise "Need admin approval" appears. In that case contact the customer's IT with the
+   [request template](consent-request-template.md) and [consent.md](consent.md) – with **your** client ID and
+   publisher name filled in. Once approved, add the tenant again.
 
-## 5. Prüfen und Fehlerbilder
+## 5. Verification and troubleshooting
 
-- Richtlinie: `Get-ItemProperty HKLM:\SOFTWARE\Policies\PresenceSync`
-- App: Einstellungen zeigen „Von Ihrer Organisation verwaltet“, die Client-ID ist ausgegraut.
-- Log (`%LOCALAPPDATA%\PresenceSync\logs`, Tray-Fenster → Dokument-Symbol): `Richtlinie aktiv: …`,
-  `Konfiguration aktiv: N Tenant(s)`, pro Tenant `verbunden`; bei automatischer Anmeldung
-  `Automatisch mit Windows-Konto angemeldet`.
+- Policy: `Get-ItemProperty HKLM:\SOFTWARE\Policies\PresenceSync`
+- App: settings show "Managed by your organization", the client ID is grayed out.
+- Log (`%LOCALAPPDATA%\PresenceSync\logs`, tray window → document icon): `Policy active: …`,
+  `Configuration active: N tenant(s)`, per tenant `<tenant>: connected`; with automatic sign-in
+  `Signed in automatically with Windows account`.
 
-Steht bei einem Tenant „Anmeldung erforderlich“ oder „Gesperrt“, nennt die App den Grund im Klartext:
+If a tenant shows "Sign-in required" or "Blocked: …", the app states the reason in plain language:
 
-| Code | Bedeutung | Lösung |
+| Code | Meaning | Solution |
 | --- | --- | --- |
-| `AADSTS65001` | Zustimmung fehlt | *Anmelden* und zustimmen |
-| `AADSTS90094` | Administratorgenehmigung erforderlich | Kunden-IT, siehe Abschnitt 4 |
-| `AADSTS50105` | Zuweisung erforderlich, Benutzer nicht zugewiesen | Kunden-IT weist den Benutzer der Unternehmensanwendung zu |
-| `AADSTS50076` | MFA erforderlich | *Anmelden* |
-| `AADSTS53000` / `53001` | Conditional Access verlangt ein konformes bzw. eingebundenes Gerät | mit diesem Gerät nicht nutzbar |
-| HTTP 403 | kein Teams-/Presence-Zugriff (Lizenz) oder Zustimmung widerrufen | Lizenz bzw. Zustimmung prüfen |
+| `AADSTS65001` | consent missing | *Sign in …* and consent |
+| `AADSTS90094` | admin approval required | customer's IT, see section 4 |
+| `AADSTS50105` | assignment required, user not assigned | customer's IT assigns the user to the enterprise application |
+| `AADSTS50076` | MFA required | *Sign in …* |
+| `AADSTS53000` / `53001` | Conditional Access requires a compliant or joined device | cannot be used with this device |
+| HTTP 403 | no Teams/presence access (license) or consent revoked | check license or consent |

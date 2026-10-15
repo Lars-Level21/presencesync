@@ -1,162 +1,161 @@
-# Architektur
+# Architecture
 
-Technische Referenz zu PresenceSync: Komponenten, Anmeldung, Sync-Logik, Graph-Aufrufe, Datenflüsse und lokal
-gespeicherte Daten. Überblick: [README](../README.md). Berechtigungen und Zustimmung aus Sicht eines Kunden-Tenants:
+Technical reference for PresenceSync: components, sign-in, sync logic, Graph calls, data flows and locally stored
+data. Overview: [README](../README.md). Permissions and consent from a customer tenant's perspective:
 [consent.md](consent.md).
 
-## Überblick
+## Overview
 
 ```mermaid
 flowchart LR
-    subgraph PC["Windows-Gerät des Benutzers"]
+    subgraph PC["User's Windows device"]
         direction TB
-        UI["PresenceSync<br/>Tray-App"]
-        WAM["Windows-Anmeldung (WAM)<br/>Token-Broker von Windows"]
-        LOCAL[("Lokale Dateien<br/>config.json · Log · MSAL-Cache (DPAPI)")]
-        POL[("Richtlinie (optional)<br/>HKLM/HKCU\SOFTWARE\Policies\PresenceSync")]
+        UI["PresenceSync<br/>tray app"]
+        WAM["Windows sign-in (WAM)<br/>Windows token broker"]
+        LOCAL[("Local files<br/>config.json · log · MSAL cache (DPAPI)")]
+        POL[("Policy (optional)<br/>HKLM/HKCU\SOFTWARE\Policies\PresenceSync")]
         UI <--> WAM
         UI --- LOCAL
         POL -.-> UI
     end
 
     subgraph T1["Tenant 1 … n"]
-        ENTRA["Microsoft Entra ID<br/>Anmeldung, MFA, Conditional Access"]
+        ENTRA["Microsoft Entra ID<br/>sign-in, MFA, Conditional Access"]
         GRAPH["Microsoft Graph v1.0<br/>/me/presence"]
     end
 
-    WAM -- "Token je Tenant" --> ENTRA
-    UI -- "HTTPS: eigenen Status lesen und setzen" --> GRAPH
+    WAM -- "token per tenant" --> ENTRA
+    UI -- "HTTPS: read and set own status" --> GRAPH
 ```
 
-- **Lokal, ohne Backend:** Es gibt keinen Server des Herausgebers. Die einzigen Netzwerkziele sind
-  `login.microsoftonline.com` und `graph.microsoft.com`.
-- **Ein Anmeldekontext pro Tenant:** Für jeden Tenant meldet sich der Benutzer mit seinem dortigen Konto an. Token eines
-  Tenants werden nie gegen einen anderen Tenant verwendet.
-- **Nur offizielle APIs:** Microsoft Graph v1.0 mit eigener App-Registrierung und delegierten Berechtigungen; keine
-  First-Party-Client-IDs, keine undokumentierten Endpunkte.
+- **Local, no backend:** There is no publisher server. The only network endpoints are `login.microsoftonline.com`
+  and `graph.microsoft.com`.
+- **One sign-in context per tenant:** For each tenant the user signs in with their account there. Tokens from one
+  tenant are never used against another tenant.
+- **Official APIs only:** Microsoft Graph v1.0 with its own app registration and delegated permissions; no
+  first-party client IDs, no undocumented endpoints.
 
-## Komponenten
+## Components
 
-| Projekt | Aufgabe | Abhängigkeiten |
+| Project | Responsibility | Dependencies |
 | --- | --- | --- |
-| `src/PresenceSync.Core` | Sync-Entscheidungen (`SyncPlanner`, reine Funktion), Zustandsmaschine (`SyncEngine`), Konfiguration und Richtlinien (`PolicyApplier`), Texte, Fehlerkatalog, Log-Filter | nur `Microsoft.Extensions.Logging.Abstractions` – kein UI, kein HTTP, kein MSAL; vollständig unit-getestet |
-| `src/PresenceSync.Graph` | Anmeldung mit MSAL und WAM pro Tenant (`TenantAuthenticator`), schlanker Graph-Client, Abbildung von Fehlern auf `AuthRequired` / `Disabled` / `Throttled` / `Transient` | Core, MSAL |
-| `src/PresenceSync.App` | WPF-Oberfläche (WPF-UI, Fluent), Tray-Symbol (H.NotifyIcon), Einstellungen, Polling-Schleife, Windows-Ereignisse, Logging (Serilog) | Core, Graph |
-| `tests/PresenceSync.Core.Tests` | xUnit; ein simuliertes Teams (`FakePresenceGateway`) bildet die Status-Zusammenführung von Graph nach | Core |
+| `src/PresenceSync.Core` | Sync decisions (`SyncPlanner`, pure function), state machine (`SyncEngine`), configuration and policies (`PolicyApplier`), strings, error catalog, log filter | only `Microsoft.Extensions.Logging.Abstractions` – no UI, no HTTP, no MSAL; fully unit-tested |
+| `src/PresenceSync.Graph` | Sign-in with MSAL and WAM per tenant (`TenantAuthenticator`), lean Graph client, mapping errors to `AuthRequired` / `Disabled` / `Throttled` / `Transient` | Core, MSAL |
+| `src/PresenceSync.App` | WPF UI (WPF-UI, Fluent), tray icon (H.NotifyIcon), settings, polling loop, Windows events, logging (Serilog) | Core, Graph |
+| `tests/PresenceSync.Core.Tests` | xUnit; a simulated Teams (`FakePresenceGateway`) reproduces Graph's status aggregation | Core |
 
-Laufzeit: .NET 10, ausgeliefert als eigenständige Einzeldatei `PresenceSync.exe` (win-x64), keine Installation
-und keine Administratorrechte nötig.
+Runtime: .NET 10, shipped as a self-contained single file `PresenceSync.exe` (win-x64); no installation and no
+administrator rights required.
 
-## Anmeldung
+## Sign-in
 
-- **MSAL mit Windows-Broker (WAM):** Die App verwendet dieselbe Windows-Anmeldung wie Teams und Office – Single
-  Sign-on, MFA, Gerätezustand und Conditional Access der jeweiligen Tenants gelten unverändert. Ist WAM nicht
-  verfügbar, fällt MSAL auf den Systembrowser zurück.
-- **Pro Tenant eine feste Authority** `https://login.microsoftonline.com/{tenant-id}`. Nur beim Hinzufügen eines
-  Tenants über die Kontoauswahl wird einmalig `organizations` verwendet; die Tenant-ID wird aus dem Ergebnis gelesen.
-  Gastkonten geben die Tenant-ID dabei explizit an.
-- **Hintergrund-Token** werden still erneuert (`offline_access`). Scheitert das (MFA fällig, Consent widerrufen,
-  Conditional Access), zeigt die App „Anmeldung erforderlich“ bzw. „Gesperrt“ mit dem Grund im Klartext. **Ein
-  Anmeldedialog öffnet sich nie automatisch**, nur nach Klick des Benutzers.
-- **Ein Konto pro Tenant.** Wählt der Benutzer für einen bereits eingerichteten Tenant ein anderes Konto, fragt die
-  App nach und zeigt bisheriges und neues Konto (Mitglied oder Gast).
-- **Verwalteter Home-Tenant:** Gibt eine Richtlinie den Home-Tenant vor, meldet sich die App mit dem Windows-Konto
-  ohne Interaktion an – nur wenn dieses ein Mitgliedskonto genau dieses Tenants ist.
+- **MSAL with the Windows broker (WAM):** The app uses the same Windows sign-in as Teams and Office – single sign-on,
+  MFA, device state and Conditional Access of each tenant apply unchanged. If WAM is not available, MSAL falls back to
+  the system browser.
+- **A fixed authority per tenant** `https://login.microsoftonline.com/{tenant-id}`. Only when a tenant is added via
+  the account picker is `organizations` used once; the tenant ID is read from the result. Guest accounts specify the
+  tenant ID explicitly.
+- **Background tokens** are renewed silently (`offline_access`). If that fails (MFA due, consent revoked,
+  Conditional Access), the app shows "Sign-in required" or "Blocked: …" with the reason in plain language. **A sign-in
+  dialog never opens automatically**, only after the user clicks.
+- **One account per tenant.** If the user picks a different account for a tenant that is already set up, the app asks
+  for confirmation and shows the previous and the new account (member or guest).
+- **Managed home tenant:** If a policy sets the home tenant, the app signs in with the Windows account without user
+  interaction – but only if that account is a member account of exactly this tenant.
 
-## Sync-Logik
+## Sync logic
 
-Die App fragt den eigenen Status aller aktiven Tenants parallel ab, standardmäßig alle 20 Sekunden.
+The app queries the user's own status in all active tenants in parallel, every 20 seconds by default.
 
-1. **Quellen bestimmen:** Ein Tenant ist *Quelle*, wenn der Benutzer dort im Anruf, in einer Telefonkonferenz, in
-   einer Besprechung ist, präsentiert oder auf „Nicht stören“ steht – und die App dort **keine** eigene Session hält.
-2. **Ziele setzen:** Gibt es mindestens eine Quelle, setzt die App in allen anderen aktiven Tenants per
-   `setPresence` eine eigene Session: `Busy/InACall`, bzw. `DoNotDisturb/Presenting`, wenn die Quelle auf „Nicht
-   stören“ steht oder präsentiert. Ablauf 5 Minuten; erneuert wird erst, wenn weniger als 2 Minuten übrig sind.
-3. **Zurücksetzen:** Gibt es keine Quelle mehr, beendet die App ihre Sessions sofort mit `clearPresence`.
+1. **Determine sources:** A tenant is a *source* if the user is in a call, a conference call or a meeting there, is
+   presenting or set to "Do not disturb" – and the app does **not** hold its own session there.
+2. **Set targets:** If there is at least one source, the app sets its own session via `setPresence` in all other
+   active tenants: `Busy/InACall`, or `DoNotDisturb/Presenting` if the source is set to "Do not disturb" or is
+   presenting. Expiration 5 minutes; renewed only when less than 2 minutes remain.
+3. **Reset:** When there is no source any more, the app ends its sessions immediately with `clearPresence`.
 
-Regeln, die Fehlverhalten verhindern:
+Rules that prevent misbehavior:
 
-| Regel | Zweck |
+| Rule | Purpose |
 | --- | --- |
-| Ein Tenant mit eigener App-Session ist nie Quelle | Keine Rückkopplung (A setzt B, B setzt A …) |
-| Nach dem Beenden einer Session wird derselbe Status 60 s lang nicht als Quelle gewertet | Graph meldet den alten Status noch kurz nach; ohne Schutz entstünde ein Ping-Pong |
-| Manueller Status hat Vorrang | Solange der Benutzer in einem Tenant manuell einen Status gesetzt hat, setzt der Sync dort nichts |
-| Teams-Präzedenz: manuell > Sessions; DnD > Beschäftigt > Verfügbar > Abwesend | Die App überschreibt nichts hart; ein in Teams gesetztes „Nicht stören“ bleibt bestehen |
+| A tenant with its own app session is never a source | No feedback loop (A sets B, B sets A …) |
+| After a session ends, the same status is not treated as a source for 60 s | Graph briefly keeps reporting the old status; without this guard there would be ping-pong |
+| Manual status takes precedence | As long as the user has set a status manually in a tenant, sync sets nothing there |
+| Teams precedence: manual > sessions; DnD > Busy > Available > Away | The app never hard-overwrites anything; "Do not disturb" set in Teams stays in place |
 
-Bekannte Einschränkung: Beginnt in einem Tenant, in dem die App gerade eine eigene Session hält, ein echter Anruf,
-erkennt die App ihn erst als Quelle, wenn ihre Session beendet ist – Graph liefert nur den zusammengeführten Status.
+Known limitation: if a real call starts in a tenant where the app currently holds its own session, the app only
+recognizes it as a source once its session has ended – Graph only returns the aggregated status.
 
-## Graph-Aufrufe
+## Graph calls
 
-Vollständige Liste, alle Microsoft Graph v1.0, alle im Kontext des angemeldeten Benutzers:
+Complete list, all Microsoft Graph v1.0, all in the context of the signed-in user:
 
-| Aufruf | Zweck | Häufigkeit |
+| Call | Purpose | Frequency |
 | --- | --- | --- |
-| `GET /me/presence` | eigenen Status lesen | alle 20 s (einstellbar 10–300 s) |
-| `GET /me?$select=id` | eigene Objekt-ID, falls noch unbekannt | einmalig |
-| `GET /organization?$select=displayName` | Name des Tenants als Vorschlag für die Beschriftung | einmalig beim Hinzufügen |
-| `POST /users/{eigene ID}/presence/setPresence` | eigene App-Session setzen bzw. erneuern | während eines Anrufs in einem anderen Tenant ca. alle 3 min |
-| `POST /users/{eigene ID}/presence/clearPresence` | eigene App-Session beenden | bei Ende des Anrufs, beim Beenden der App, bei Windows-Abmeldung |
-| `POST /users/{eigene ID}/presence/setUserPreferredPresence` | manueller Status | nur auf Klick des Benutzers |
-| `POST /users/{eigene ID}/presence/clearUserPreferredPresence` | manuellen Status zurücksetzen | nur auf Klick des Benutzers |
+| `GET /me/presence` | read own status | every 20 s (configurable 10–300 s) |
+| `GET /me?$select=id` | own object ID, if not yet known | once |
+| `GET /organization?$select=displayName` | tenant name as suggested label | once when adding |
+| `POST /users/{own ID}/presence/setPresence` | set or renew own app session | about every 3 min during a call in another tenant |
+| `POST /users/{own ID}/presence/clearPresence` | end own app session | when the call ends, when the app exits, on Windows sign-out |
+| `POST /users/{own ID}/presence/setUserPreferredPresence` | manual status | only when the user clicks |
+| `POST /users/{own ID}/presence/clearUserPreferredPresence` | reset manual status | only when the user clicks |
 
-`sessionId` von `setPresence` ist die Client-ID der App. Für einen manuellen Status ohne Dauer („Unbegrenzt“) gilt
-die Graph-Vorgabe: 1 Tag für Beschäftigt/Nicht stören, sonst 7 Tage.
+The `sessionId` for `setPresence` is the app's client ID. For a manual status without a duration ("Unlimited") the
+Graph default applies: 1 day for Busy/Do not disturb, otherwise 7 days.
 
-## Datenfluss beim Auto-Sync
+## Data flow during auto-sync
 
 ```mermaid
 sequenceDiagram
     autonumber
     participant A as Tenant A
-    participant App as PresenceSync (lokal)
+    participant App as PresenceSync (local)
     participant B as Tenant B
 
-    loop alle 20 s
+    loop every 20 s
         App->>A: GET /me/presence
         A-->>App: Busy / InACall
         App->>B: GET /me/presence
         B-->>App: Available
     end
-    Note over App: A ist belegt → B soll „Beschäftigt“ zeigen
-    App->>B: POST setPresence (Busy / InACall, Ablauf 5 min)
-    Note over B: Teams führt die App-Session mit den<br/>übrigen Sessions zusammen → „Beschäftigt“
-    Note over A: Anruf endet
+    Note over App: A is busy → B should show "Busy"
+    App->>B: POST setPresence (Busy / InACall, expires in 5 min)
+    Note over B: Teams merges the app session with the<br/>other sessions → "Busy"
+    Note over A: Call ends
     App->>A: GET /me/presence
     A-->>App: Available
     App->>B: POST clearPresence
-    Note over B: Status fällt sofort zurück
+    Note over B: Status reverts immediately
 ```
 
-**Zwischen Tenants übertragen wird ausschließlich** die Ableitung „belegt“ bzw. „nicht stören“, technisch eine der
-zwei festen Kombinationen `Busy/InACall` oder `DoNotDisturb/Presenting`. Gesprächspartner, Besprechungsthemen,
-Teilnehmer, Uhrzeiten oder Inhalte gelangen nicht in einen anderen Tenant. Der Weg führt nur über das Gerät des
-Benutzers.
+**The only thing transferred between tenants** is the derived state "busy" or "do not disturb", technically one of the
+two fixed combinations `Busy/InACall` or `DoNotDisturb/Presenting`. Call partners, meeting subjects, participants,
+times or content never reach another tenant. The only path is through the user's device.
 
-Die Antwort von `GET /me/presence` enthält auch Felder wie Statusnotiz oder Abwesenheitseinstellungen. PresenceSync
-wertet nur `availability` und `activity` aus und speichert oder überträgt den Rest nicht.
+The response of `GET /me/presence` also contains fields such as the status message or out-of-office settings.
+PresenceSync only evaluates `availability` and `activity` and neither stores nor transfers the rest.
 
-## Gespeicherte Daten
+## Stored data
 
-| Datum | Ort | Dauer |
+| Data | Location | Retention |
 | --- | --- | --- |
-| Status je Tenant | nur Arbeitsspeicher | bis zum nächsten Abruf |
-| Tenant-ID, Anzeigename, Anmeldename (UPN), Einstellungen | `%APPDATA%\PresenceSync\config.json` | bis der Tenant entfernt bzw. die App deinstalliert wird |
-| Konto- und Token-Metadaten | `%LOCALAPPDATA%\PresenceSync\msal.cache`, mit Windows-DPAPI an den Benutzer gebunden; Refresh-Token verwaltet Windows (WAM) | bis Abmeldung oder Ablauf |
-| Betriebsprotokoll | `%LOCALAPPDATA%\PresenceSync\logs`; Anmeldenamen maskiert, Token herausgefiltert | 14 Tage rollierend |
-| Telemetrie, Nutzungsdaten | – | **keine** |
+| Status per tenant | memory only | until the next poll |
+| Tenant ID, display name, sign-in name (UPN), settings | `%APPDATA%\PresenceSync\config.json` | until the tenant is removed or the app is uninstalled |
+| Account and token metadata | `%LOCALAPPDATA%\PresenceSync\msal.cache`, bound to the user with Windows DPAPI; refresh tokens are managed by Windows (WAM) | until sign-out or expiry |
+| Operational log | `%LOCALAPPDATA%\PresenceSync\logs`; sign-in names masked, tokens filtered out | 14 days rolling |
+| Telemetry, usage data | – | **none** |
 
-## Robustheit
+## Robustness
 
-- **Fehler bleiben pro Tenant:** Ein gesperrter, nicht erreichbarer oder gedrosselter Tenant hält die anderen nicht auf.
-- **Drosselung (HTTP 429/503):** `Retry-After` wird beachtet, sonst exponentieller Backoff pro Tenant (10 s … 5 min).
-- **Netzwerkverlust:** Abfragen pausieren und laufen nach Wiederverbindung sofort weiter.
-- **Standby:** Nach dem Aufwachen sofortige Abfrage; abgelaufene Sessions werden erkannt.
-- **Beenden, Abmelden, Herunterfahren:** Eigene Sessions werden aktiv beendet; falls das nicht gelingt, laufen sie nach
-  spätestens 5 Minuten aus.
+- **Errors stay per tenant:** A blocked, unreachable or throttled tenant does not hold up the others.
+- **Throttling (HTTP 429/503):** `Retry-After` is honored, otherwise exponential backoff per tenant (10 s … 5 min).
+- **Network loss:** Polling pauses and resumes immediately after reconnecting.
+- **Standby:** Immediate poll after wake-up; expired sessions are detected.
+- **Exit, sign-out, shutdown:** The app actively ends its own sessions; if that fails, they expire after 5 minutes at
+  most.
 
-## Konfiguration und Richtlinien
+## Configuration and policies
 
-Rangfolge: Computerrichtlinie (HKLM) > Benutzerrichtlinie (HKCU) unter `SOFTWARE\Policies\PresenceSync` >
-`config.json`. Richtlinien können die Client-ID vorgeben (dann gesperrt) und den Home-Tenant anlegen. Einzelheiten:
-[deployment.md → Richtlinien](deployment.md#2-richtlinien).
+Precedence: computer policy (HKLM) > user policy (HKCU) under `SOFTWARE\Policies\PresenceSync` > `config.json`.
+Policies can set the client ID (which is then locked) and add the home tenant. Details:
+[deployment.md → Policies](deployment.md#2-policies).

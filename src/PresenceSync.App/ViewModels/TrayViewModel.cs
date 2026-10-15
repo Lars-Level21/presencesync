@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.Windows.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using PresenceSync.Core.Resources;
 using PresenceSync.Core.Presence;
 using PresenceSync.Core.Sync;
 
@@ -37,7 +38,7 @@ internal sealed partial class TrayViewModel : ObservableObject
     public ITrayActions Actions => _actions;
 
     [ObservableProperty]
-    private string _subtitle = "Startet …";
+    private string _subtitle = Strings.Flyout_Starting;
 
     [ObservableProperty]
     private ImageSource _stateGlyph;
@@ -71,7 +72,7 @@ internal sealed partial class TrayViewModel : ObservableObject
                 Tenants.Clear();
                 HasTenants = false;
                 StateGlyph = Theme.Image(PresenceGlyph.Warning);
-                Subtitle = "Nicht eingerichtet – Einstellungen öffnen";
+                Subtitle = Strings.Flyout_NotConfigured;
                 return;
             }
 
@@ -104,18 +105,18 @@ internal sealed partial class TrayViewModel : ObservableObject
     private static string Describe(SyncSnapshot snapshot, bool paused)
     {
         if (paused)
-            return "Offline – Sync pausiert";
+            return Strings.Flyout_Paused;
         if (snapshot.Tenants.Count == 0)
-            return "Noch keine Tenants eingerichtet";
+            return Strings.Flyout_NoTenants;
         var problems = snapshot.Tenants.Count(t => t.HasProblem);
         if (problems > 0)
-            return problems == 1 ? "1 Tenant braucht Aufmerksamkeit" : $"{problems} Tenants brauchen Aufmerksamkeit";
+            return problems == 1 ? Strings.Flyout_OneProblem : Strings.Format(nameof(Strings.Flyout_Problems), problems);
         if (!snapshot.AutoSync)
-            return "Auto-Sync ist aus";
+            return Strings.Flyout_AutoSyncOff;
         var sources = snapshot.Tenants.Where(t => t.Role == TenantRole.Source).Select(t => t.Name).ToList();
         if (sources.Count > 0)
-            return "Sync aktiv – Quelle: " + string.Join(", ", sources);
-        return snapshot.TrayState == TrayState.Busy ? "Beschäftigt" : "Alle verfügbar";
+            return Strings.Format(nameof(Strings.Flyout_SyncActive), string.Join(", ", sources));
+        return snapshot.TrayState == TrayState.Busy ? Strings.Presence_Busy : Strings.Flyout_AllAvailable;
     }
 
     public string ToolTip
@@ -123,8 +124,8 @@ internal sealed partial class TrayViewModel : ObservableObject
         get
         {
             if (Snapshot is null)
-                return "PresenceSync – nicht eingerichtet";
-            var lines = Snapshot.Tenants.Where(t => t.Enabled).Select(t => $"{t.Name}: {t.StatusLine}").Prepend("PresenceSync – " + Subtitle);
+                return Strings.Tray_NotConfigured;
+            var lines = Snapshot.Tenants.Where(t => t.Enabled).Select(t => $"{t.Name}: {t.StatusLine}").Prepend(Strings.Format(nameof(Strings.Tray_TooltipHeader), Subtitle));
             var text = string.Join("\n", lines);
             return text.Length <= 127 ? text : text[..124] + "…";
         }
@@ -188,8 +189,8 @@ internal sealed partial class TenantItemViewModel(string tenantId, ITrayActions 
         Detail = tenant switch
         {
             { HealthMessage: { } message } => message,
-            { Manual: { } manual } => $"Manuell bis {FormatUntil(manual.Until)}",
-            { OwnSession: { } session } => $"Sync-Session bis {session.Until.ToLocalTime():t}",
+            { Manual: { } manual } => Strings.Format(nameof(Strings.Detail_ManualUntil), FormatUntil(manual.Until)),
+            { OwnSession: { } session } => Strings.Format(nameof(Strings.Detail_SessionUntil), session.Until.ToLocalTime().ToString("t")),
             _ => null,
         };
     }

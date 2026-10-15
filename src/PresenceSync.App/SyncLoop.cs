@@ -27,14 +27,14 @@ internal sealed class SyncLoop(SyncEngine engine, Func<TimeSpan> interval, ILogg
     {
         if (_paused) return;
         _paused = true;
-        log.LogInformation("Sync pausiert (kein Netzwerk)");
+        log.LogInformation("Sync paused (no network)");
     }
 
     public void Resume()
     {
         if (!_paused) return;
         _paused = false;
-        log.LogInformation("Sync fortgesetzt");
+        log.LogInformation("Sync resumed");
         TriggerNow();
     }
 
@@ -54,7 +54,7 @@ internal sealed class SyncLoop(SyncEngine engine, Func<TimeSpan> interval, ILogg
                 }
                 catch (Exception ex)
                 {
-                    log.LogError(ex, "Poll fehlgeschlagen");
+                    log.LogError(ex, "Poll failed");
                 }
             }
 

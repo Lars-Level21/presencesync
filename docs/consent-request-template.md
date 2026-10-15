@@ -37,7 +37,7 @@ Admin-Consent erteilen und die Unternehmensanwendung per „Zuweisung erforderli
 Anleitung mit PowerShell-Snippet, Berechtigungsdetails, Datenflüssen und Widerruf:
 
 - Informationen für Admins: https://github.com/Lars-Level21/presencesync/blob/main/docs/consent.md
-- Security-Review: https://github.com/Lars-Level21/presencesync/blob/main/docs/security-review.md
+- Sicherheit: https://github.com/Lars-Level21/presencesync/blob/main/SECURITY.md
 
 Admin-Consent für den ganzen Tenant (danach bitte auf mein Konto beschränken):
 

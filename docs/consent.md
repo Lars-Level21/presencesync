@@ -82,8 +82,8 @@ Sequenzdiagramm und Tabelle aller Daten: [architecture.md → Datenfluss](archit
 - **Vorrang der Benutzerentscheidung:** Ein im Teams-Client gesetzter Status wird nicht überschrieben.
 - **Geringe Last:** pro Tenant etwa 3 Lesezugriffe pro Minute, Schreibzugriffe nur bei Statuswechseln; Drosselung wird
   mit `Retry-After` und Backoff beachtet.
-- **Nachvollziehbar:** quelloffen, automatisierte Tests, Schwachstellenscan in der Build-Pipeline, dokumentiertes
-  [Security-Review](security-review.md).
+- **Nachvollziehbar:** quelloffen, automatisierte Tests, Schwachstellenscan in der Build-Pipeline; Sicherheitsmodell
+  und bekannte Einschränkungen in [SECURITY.md](../SECURITY.md).
 
 **Worst Case:** Erlangt ein Angreifer Codeausführung auf dem Gerät des Benutzers und missbraucht diese App, kann er
 den Teams-Status **dieses einen Benutzers** lesen und ändern – mehr nicht.

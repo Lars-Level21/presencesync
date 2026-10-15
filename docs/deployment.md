@@ -182,7 +182,7 @@ Mit dem *Microsoft Win32 Content Prep Tool* zu `.intunewin` packen und in Intune
 Das Installationsskript legt die App nach `%ProgramFiles%\PresenceSync` und trägt einen Autostart für alle Benutzer
 ein. Die Richtlinie besser getrennt per ADMX verwalten – dann lässt sie sich ändern, ohne die App neu zu verteilen.
 
-> Die Release-Exe ist bewusst nicht signiert ([security-review.md](security-review.md), Befund 5). Mit AppLocker/WDAC
+> Die Release-Exe ist bewusst nicht signiert ([SECURITY.md](../SECURITY.md#bekannte-einschränkungen)). Mit AppLocker/WDAC
 > entweder per Hash freigeben oder aus dem Quellcode bauen und mit dem eigenen Zertifikat signieren. SmartScreen-Warnungen treten bei Verteilung über
 > Intune in der Regel nicht auf, da die Datei nicht aus dem Internet heruntergeladen wird.
 

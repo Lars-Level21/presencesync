@@ -52,7 +52,7 @@ docs/                      Dokumentation (Einstieg: README.md)
   Actions sind auf Commit-SHAs gepinnt; Dependabot hält NuGet-Pakete und Actions aktuell.
 - **Release** (`.github/workflows/release.yml`): Ein Tag `v1.2.3` baut, testet, veröffentlicht `PresenceSync.exe`
   mit SHA-256-Prüfsumme und legt das GitHub-Release an. Die Exe ist bewusst **nicht signiert** (siehe
-  [security-review.md](security-review.md), Befund 5); wer eine geprüfte Herkunft braucht, baut selbst.
+  [SECURITY.md](../SECURITY.md#bekannte-einschränkungen)); wer eine geprüfte Herkunft braucht, baut selbst.
 - **Repository-Schutz:** Private vulnerability reporting, Dependabot alerts, Secret scanning mit Push protection;
   `main` nur per Pull Request mit grünem CI-Check `build`.
 

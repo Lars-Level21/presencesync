@@ -124,8 +124,7 @@ einen Benutzer, Überwachen und Widerrufen, FAQ
 
 | | |
 | --- | --- |
-| [docs/security-review.md](docs/security-review.md) | Ergebnis des Security-Reviews und offene Punkte |
-| [SECURITY.md](SECURITY.md) | Sicherheitslücken melden, Prüfsummen der Releases |
+| [SECURITY.md](SECURITY.md) | Sicherheitsmodell, bekannte Einschränkungen, Sicherheitslücken melden, Prüfsummen der Releases |
 
 ## Weitere Dokumentation
 

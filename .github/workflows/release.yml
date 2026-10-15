@@ -31,7 +31,7 @@ jobs:
           $version = '${{ github.ref_name }}'.TrimStart('v')
           dotnet publish src/PresenceSync.App -c Release -o publish -p:Version=$version
 
-      # The exe is intentionally not code-signed (docs/security-review.md, finding 5); integrity via SHA-256 checksum.
+      # The exe is intentionally not code-signed (see SECURITY.md, known limitations); integrity via SHA-256 checksum.
 
       - name: Checksum
         shell: pwsh

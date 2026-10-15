@@ -2,13 +2,12 @@
 
 ## Schwachstellen melden
 
-Bitte melden Sie Sicherheitslücken **nicht** über öffentliche Issues, sondern vertraulich:
+Bitte melden Sie Sicherheitslücken **nicht** über öffentliche Issues, sondern vertraulich über GitHub:
+[Report a vulnerability](https://github.com/Lars-Level21/presencesync/security/advisories/new) (Private vulnerability
+reporting).
 
-- GitHub: [Report a vulnerability](https://github.com/leveltwentyone/presencesync/security/advisories/new) (Private vulnerability reporting), oder
-- E-Mail an `<security-kontakt>`
-
-Bitte beschreiben Sie betroffene Version, Schritte zur Reproduktion und mögliche Auswirkungen. Wir bestätigen den
-Eingang innerhalb von 5 Werktagen und stimmen Veröffentlichung und Fix mit Ihnen ab.
+Bitte beschreiben Sie betroffene Version, Schritte zur Reproduktion und mögliche Auswirkungen. Meldungen werden nach
+Möglichkeit bearbeitet; Reaktionszeiten werden nicht zugesichert (MIT-Lizenz, ohne Gewährleistung).
 
 ## Unterstützte Versionen
 

@@ -51,17 +51,10 @@ docs/                      Dokumentation (Einstieg: README.md)
 - **CI** (`.github/workflows/ci.yml`): Build, Tests, Schwachstellenprüfung der NuGet-Pakete, Publish als Artefakt.
   Actions sind auf Commit-SHAs gepinnt; Dependabot hält NuGet-Pakete und Actions aktuell.
 - **Release** (`.github/workflows/release.yml`): Ein Tag `v1.2.3` baut, testet, veröffentlicht `PresenceSync.exe`
-  mit SHA-256-Prüfsumme und legt das GitHub-Release an.
-
-### Checkliste vor dem ersten öffentlichen Release
-
-- [ ] Platzhalter ersetzen: Kontakte in `SECURITY.md` und `PRIVACY.md`
-- [ ] Repository öffentlich schalten; *Settings → Code security*: **Private vulnerability reporting**,
-      **Dependabot alerts**, **Secret scanning** aktivieren; Branch-Schutz für `main`
-- [ ] App-Registrierung des Herausgebers: Datenschutz-URL (veröffentlichte `PRIVACY.md`), Nutzungsbedingungen,
-      Startseite, Logo; **Publisher display name** im Partner Center auf den Firmennamen setzen
-- [ ] **Code-Signatur** einrichten (z. B. Azure Trusted Signing) und in `release.yml` vor der Prüfsumme ergänzen
-- [ ] Tag `v1.0.0` pushen und Release-Notes prüfen
+  mit SHA-256-Prüfsumme und legt das GitHub-Release an. Die Exe ist bewusst **nicht signiert** (siehe
+  [security-review.md](security-review.md), Befund 5); wer eine geprüfte Herkunft braucht, baut selbst.
+- **Repository-Schutz:** Private vulnerability reporting, Dependabot alerts, Secret scanning mit Push protection;
+  `main` nur per Pull Request mit grünem CI-Check `build`.
 
 ## Ursprüngliche Anforderungen
 

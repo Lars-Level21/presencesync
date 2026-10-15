@@ -31,10 +31,10 @@ Funktionsweise im Überblick: [README](../README.md). Technische Details und Dat
 | Secrets / Zertifikate | keine |
 | Application Permissions (ohne Benutzer) | **keine** |
 | Delegierte Berechtigungen | `User.Read`, `Presence.ReadWrite`, `offline_access` |
-| Quellcode | öffentlich, MIT-Lizenz: <https://github.com/leveltwentyone/presencesync> |
+| Quellcode | öffentlich, MIT-Lizenz: <https://github.com/Lars-Level21/presencesync> |
 
 Durch die Zustimmung entsteht in Ihrem Tenant eine **Unternehmensanwendung** „PresenceSync“. Die App-Registrierung
-selbst liegt im Tenant des Herausgebers – das ist die Organisation des Mitarbeiters oder LEVEL21.
+selbst liegt im Tenant des Herausgebers – in der Regel der Organisation des anfragenden Benutzers.
 
 ## Berechtigungen
 

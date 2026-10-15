@@ -3,7 +3,7 @@
 **Ein Teams-Status für alle Tenants.** PresenceSync ist eine kleine Windows-App für den Infobereich, die den
 Microsoft-Teams-Status über mehrere Microsoft-Entra-ID-Tenants hinweg abgleicht und zentral steuerbar macht.
 
-[![CI](https://github.com/leveltwentyone/presencesync/actions/workflows/ci.yml/badge.svg)](https://github.com/leveltwentyone/presencesync/actions/workflows/ci.yml)
+[![CI](https://github.com/Lars-Level21/presencesync/actions/workflows/ci.yml/badge.svg)](https://github.com/Lars-Level21/presencesync/actions/workflows/ci.yml)
 [![Lizenz: MIT](https://img.shields.io/badge/Lizenz-MIT-blue.svg)](LICENSE)
 
 ## Das Problem
@@ -86,8 +86,9 @@ Details zu Komponenten, Sync-Logik und Datenflüssen: **[docs/architecture.md](d
    [`scripts/New-AppRegistration.ps1`](scripts/New-AppRegistration.ps1), siehe
    [docs/deployment.md → App-Registrierung](docs/deployment.md#1-app-registrierung). Die ausgegebene `appId` ist die
    **Client-ID**.
-2. **App starten:** `PresenceSync.exe` aus dem [neuesten Release](https://github.com/leveltwentyone/presencesync/releases/latest) herunterladen (Prüfsumme siehe
-   [SECURITY.md](SECURITY.md)) oder selbst bauen:
+2. **App starten:** `PresenceSync.exe` aus dem [neuesten Release](https://github.com/Lars-Level21/presencesync/releases/latest) herunterladen (Prüfsumme siehe
+   [SECURITY.md](SECURITY.md)) oder selbst bauen. Die Exe ist nicht signiert; Windows SmartScreen warnt deshalb beim
+   ersten Start einer heruntergeladenen Datei – *Weitere Informationen → Trotzdem ausführen*. Selbst bauen:
 
    ```bash
    dotnet publish src/PresenceSync.App -c Release -o publish
@@ -119,13 +120,12 @@ beschränken und jederzeit widerrufen.
 → **[docs/consent.md](docs/consent.md)**: Berechtigungen und verwendete Endpunkte, Sicherheit, Zustimmung nur für
 einen Benutzer, Überwachen und Widerrufen, FAQ
 
-## Sicherheit und Datenschutz
+## Sicherheit
 
 | | |
 | --- | --- |
 | [docs/security-review.md](docs/security-review.md) | Ergebnis des Security-Reviews und offene Punkte |
 | [SECURITY.md](SECURITY.md) | Sicherheitslücken melden, Prüfsummen der Releases |
-| [PRIVACY.md](PRIVACY.md) | Datenschutzhinweise |
 
 ## Weitere Dokumentation
 
@@ -137,4 +137,4 @@ einen Benutzer, Überwachen und Widerrufen, FAQ
 
 ## Lizenz
 
-[MIT](LICENSE) – © 2026 LEVEL21
+[MIT](LICENSE) – © 2026 Lars Martin

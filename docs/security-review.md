@@ -12,8 +12,7 @@
 Keine kritischen oder hohen Befunde. Die App arbeitet ausschließlich mit **delegierten Low-Privilege-Berechtigungen**
 (`User.Read`, `Presence.ReadWrite`, `offline_access`) auf den **eigenen** Status des angemeldeten Benutzers, hat
 kein Backend, sendet keine Telemetrie und verbindet sich nur mit Microsoft-Endpunkten. Vier niedrige Befunde wurden
-im Rahmen des Reviews behoben, zwei Punkte sind vor einer öffentlichen Veröffentlichung noch umzusetzen
-(Code-Signatur, Datenschutz-/Nutzungs-URLs in der App-Registrierung).
+im Rahmen des Reviews behoben; die fehlende Code-Signatur ist eine bewusste Entscheidung (Befund 5).
 
 ## Befunde
 
@@ -23,9 +22,9 @@ im Rahmen des Reviews behoben, zwei Punkte sind vor einer öffentlichen Veröffe
 | 2 | Eingaben | Die Tenant-Eingabe im Einstellungsdialog ging ungeprüft in die Authority-URL (z. B. `common`, `organizations`, Pfadteile). | Niedrig | **Behoben:** `TenantInput` erlaubt nur GUID oder Domain; zusätzlich Prüfung in `TenantAuthenticator`. `organizations` wird nur intern für die einmalige Kontoauswahl beim Hinzufügen verwendet (`TenantAuthenticator.ForAccountSelection`), danach läuft jeder Tenant mit eigener, fester Authority. |
 | 3 | Graph-Aufrufe | Die Benutzer-ID aus der Graph-Antwort wurde unescaped in den URL-Pfad eingesetzt. | Niedrig | **Behoben:** `Uri.EscapeDataString`. |
 | 4 | Lieferkette | GitHub Actions über Tags statt Commit-SHAs referenziert, kein automatischer Schwachstellen-Check. | Niedrig | **Behoben:** Actions auf SHAs gepinnt, `persist-credentials: false`, Schwachstellen-Check im CI bricht den Build ab, Dependabot für NuGet und Actions. |
-| 5 | Auslieferung | `PresenceSync.exe` ist nicht Authenticode-signiert. Folge: SmartScreen-Warnung, keine Herkunftsprüfung, in verwalteten Umgebungen (AppLocker/WDAC) schwer freizugeben. | Mittel (für öffentliche Verteilung) | **Offen:** Signatur einrichten (z. B. Azure Trusted Signing), Platzhalter in `release.yml`. Bis dahin SHA-256-Prüfsumme je Release. |
+| 5 | Auslieferung | `PresenceSync.exe` ist nicht Authenticode-signiert. Folge: SmartScreen-Warnung, keine Herkunftsprüfung, in verwalteten Umgebungen (AppLocker/WDAC) schwer freizugeben. | Mittel (für öffentliche Verteilung) | **Akzeptiert:** Open-Source-Werkzeug ohne Herausgeber-Infrastruktur. Jedes Release hat eine SHA-256-Prüfsumme; wer eine geprüfte Herkunft braucht (z. B. für AppLocker/WDAC per Herausgeber), baut aus dem Quellcode und signiert selbst. |
 | 6 | Mandanten-Sicht | Öffentlicher Client: Jeder kann mit der Client-ID Token für **sich selbst** anfordern. Ein tenantweiter Admin-Consent gilt für alle Benutzer des Kunden-Tenants. | Mittel (organisatorisch) | **Mitigiert durch Doku:** Admin-Leitfaden empfiehlt *Zuweisung erforderlich* bzw. Consent nur für einen Benutzer (`consentType = Principal`). |
-| 7 | App-Registrierung | Keine Datenschutz- und Nutzungsbedingungen-URL hinterlegt. Admins prüfen diese Angaben beim Consent. | Niedrig | **Offen:** `PRIVACY.md` veröffentlichen und unter *Branding & properties* verlinken. |
+| 7 | App-Registrierung | Keine Datenschutz- und Nutzungsbedingungen-URL hinterlegt. | – | **Entfällt:** Der Herausgeber verarbeitet keine Daten (kein Backend, keine Telemetrie); die Datenverarbeitung auf dem Gerät ist in `architecture.md` beschrieben. |
 | 8 | Laufzeit | Die Single-File-Exe entpackt native Bibliotheken (WAM, WPF) nach `%TEMP%\.net\PresenceSync\…`. Ein Prozess desselben Benutzers könnte sie austauschen. | Niedrig | **Akzeptiert:** setzt bereits Code-Ausführung im Benutzerkontext voraus; dann ist auch WAM/Teams kompromittierbar. |
 | 9 | Lokale Daten | `config.json` enthält Tenant-IDs, Anzeigenamen und UPNs im Klartext; MSAL-Cache ist per DPAPI an den Windows-Benutzer gebunden. | Niedrig | **Akzeptiert:** keine Geheimnisse in der Config; Refresh-Token liegen bei WAM im Windows-Broker. |
 | 10 | Lizenz | Für eine öffentliche Veröffentlichung fehlte eine Lizenz. | – | **Behoben:** MIT-Lizenz (`LICENSE`). |
@@ -65,10 +64,8 @@ im Rahmen des Reviews behoben, zwei Punkte sind vor einer öffentlichen Veröffe
 - Die App vertraut darauf, dass Microsoft Graph den Presence-Status korrekt zusammenführt (Session-Aggregation). Ein
   Fehlverhalten dort wirkt sich nur auf die Statusanzeige aus.
 
-## Empfehlungen vor der Veröffentlichung
+## Empfehlungen
 
-1. Code-Signatur einrichten (Befund 5).
-2. `PRIVACY.md` und Nutzungsbedingungen veröffentlichen und in der App-Registrierung verlinken (Befund 7).
-3. ~~Lizenz festlegen~~ – erledigt (MIT).
-4. GitHub *Private vulnerability reporting* aktivieren (siehe `SECURITY.md`).
-5. Dieses Review bei Phase 2 (Kalenderzugriff) wiederholen – dann kommen Termin-Metadaten als neue Datenkategorie hinzu.
+1. ~~Lizenz festlegen~~ – erledigt (MIT).
+2. ~~GitHub *Private vulnerability reporting*, Secret scanning, Branch-Schutz~~ – erledigt.
+3. Dieses Review bei Phase 2 (Kalenderzugriff) wiederholen – dann kommen Termin-Metadaten als neue Datenkategorie hinzu.

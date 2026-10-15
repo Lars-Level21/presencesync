@@ -5,9 +5,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <Version>0.1.0</Version>
-    <Company>LEVEL21</Company>
+    <Company>Lars Martin</Company>
     <Product>PresenceSync</Product>
-    <Copyright>Copyright (c) 2026 LEVEL21</Copyright>
+    <Copyright>Copyright (c) 2026 Lars Martin</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">

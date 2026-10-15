@@ -48,8 +48,8 @@ den verifizierten Herausgeber. Die ausgegebene `appId` ist die **Client-ID**.
 2. *Authentifizierung* → *Plattform hinzufügen* → *Mobile- und Desktopanwendungen* →
    `ms-appx-web://microsoft.aad.brokerplugin/<clientId>` ergänzen; *Öffentliche Clientflows zulassen* = **Ja**.
 3. *API-Berechtigungen* → Microsoft Graph → *Delegiert*: `User.Read`, `Presence.ReadWrite`, `offline_access`.
-4. *Branding & Eigenschaften*: Herausgeberdomäne, Logo, Startseite und **Datenschutz-URL** (z. B. die veröffentlichte
-   [PRIVACY.md](../PRIVACY.md)) hinterlegen – Kunden-Admins sehen diese Angaben im Consent-Dialog.
+4. *Branding & Eigenschaften*: optional Herausgeberdomäne und Logo hinterlegen – Kunden-Admins sehen diese Angaben im
+   Consent-Dialog.
 5. Herausgeber verifizieren (nächster Abschnitt).
 
 ### Herausgeber-Verifizierung
@@ -182,8 +182,8 @@ Mit dem *Microsoft Win32 Content Prep Tool* zu `.intunewin` packen und in Intune
 Das Installationsskript legt die App nach `%ProgramFiles%\PresenceSync` und trägt einen Autostart für alle Benutzer
 ein. Die Richtlinie besser getrennt per ADMX verwalten – dann lässt sie sich ändern, ohne die App neu zu verteilen.
 
-> Die Exe ist noch nicht Authenticode-signiert ([security-review.md](security-review.md), Befund 5). Mit
-> AppLocker/WDAC muss sie bis dahin per Hash freigegeben werden. SmartScreen-Warnungen treten bei Verteilung über
+> Die Release-Exe ist bewusst nicht signiert ([security-review.md](security-review.md), Befund 5). Mit AppLocker/WDAC
+> entweder per Hash freigeben oder aus dem Quellcode bauen und mit dem eigenen Zertifikat signieren. SmartScreen-Warnungen treten bei Verteilung über
 > Intune in der Regel nicht auf, da die Datei nicht aus dem Internet heruntergeladen wird.
 
 ### Was Mitarbeiter danach erleben

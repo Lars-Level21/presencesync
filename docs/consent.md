@@ -1,101 +1,100 @@
-# PresenceSync – Informationen für Admins von Kunden-Tenants
+# PresenceSync – Information for customer tenant admins
 
-Für IT-Administratoren eines Tenants, in dem ein Benutzer – meist ein externer Berater mit Mitgliedskonto –
-PresenceSync verwenden möchte und Ihre Zustimmung (Consent) braucht. Diese Seite erklärt, worauf Sie zustimmen, wie
-Sie die Zustimmung auf diesen einen Benutzer beschränken und wie Sie sie überwachen und widerrufen.
+For IT administrators of a tenant in which a user – usually an external consultant with a member account – wants to
+use PresenceSync and needs your consent. This page explains what you are consenting to, how to restrict consent to
+this one user and how to monitor and revoke it.
 
-> **Kurzfassung:** PresenceSync ist eine lokale Windows-App ohne Server. Sie liest und setzt per Microsoft Graph
-> ausschließlich den **Teams-Status des angemeldeten Benutzers selbst**. Angefragt werden nur die delegierten
-> Berechtigungen `User.Read`, `Presence.ReadWrite` und `offline_access`. Zwischen Tenants wird nur das Signal
-> „belegt / nicht stören“ übertragen – keine Inhalte, keine Namen, keine Termine. Die Zustimmung lässt sich auf einen
-> einzelnen Benutzer beschränken und jederzeit widerrufen.
+> **Summary:** PresenceSync is a local Windows app without a server. Via Microsoft Graph it reads and sets only the
+> **signed-in user's own Teams status**. It requests only the delegated permissions `User.Read`,
+> `Presence.ReadWrite` and `offline_access`. The only thing transferred between tenants is the signal
+> "busy / do not disturb" – no content, no names, no appointments. Consent can be restricted to a single user and
+> revoked at any time.
 
-## Worum es geht
+## What this is about
 
-Externe Mitarbeiter sind im Teams-Client oft gleichzeitig in mehreren Tenants angemeldet; der Teams-Status ist aber
-pro Tenant getrennt. Telefoniert der Mitarbeiter im Tenant seines Arbeitgebers, erscheint er in Ihrem Tenant weiter
-als „Verfügbar“. PresenceSync setzt ihn in diesem Fall auch bei Ihnen auf „Beschäftigt“ und danach wieder zurück.
-**Für Ihre Benutzer wird der Status des externen Kollegen dadurch zuverlässiger.**
+External staff are often signed in to several tenants at once in the Teams client, but the Teams status is separate
+per tenant. When the employee is on a call in their employer's tenant, they still appear as "Available" in your
+tenant. In that case PresenceSync sets them to "Busy" in your tenant as well and resets it afterwards.
+**For your users, the external colleague's status becomes more reliable.**
 
-Funktionsweise im Überblick: [README](../README.md). Technische Details und Datenflüsse:
+How it works at a glance: [README](../README.md). Technical details and data flows:
 [architecture.md](architecture.md).
 
-## Die Anwendung
+## The application
 
 | | |
 | --- | --- |
 | Name | PresenceSync |
-| Herausgeber | wird im Consent-Dialog angezeigt; bei verifiziertem Herausgeber mit blauem Haken |
-| Client-ID | `<clientId>` – vom anfragenden Benutzer bzw. dessen Organisation |
-| App-Typ | öffentlicher Client (Windows-Desktop-App), Multi-Tenant |
-| Secrets / Zertifikate | keine |
-| Application Permissions (ohne Benutzer) | **keine** |
-| Delegierte Berechtigungen | `User.Read`, `Presence.ReadWrite`, `offline_access` |
-| Quellcode | öffentlich, MIT-Lizenz: <https://github.com/Lars-Level21/presencesync> |
+| Publisher | shown in the consent dialog; with a blue check mark if the publisher is verified |
+| Client ID | `<clientId>` – from the requesting user or their organization |
+| App type | public client (Windows desktop app), multi-tenant |
+| Secrets / certificates | none |
+| Application permissions (without a user) | **none** |
+| Delegated permissions | `User.Read`, `Presence.ReadWrite`, `offline_access` |
+| Source code | public, MIT license: <https://github.com/Lars-Level21/presencesync> |
 
-Durch die Zustimmung entsteht in Ihrem Tenant eine **Unternehmensanwendung** „PresenceSync“. Die App-Registrierung
-selbst liegt im Tenant des Herausgebers – in der Regel der Organisation des anfragenden Benutzers.
+Consent creates an **enterprise application** "PresenceSync" in your tenant. The app registration itself lives in the
+publisher's tenant – usually the organization of the requesting user.
 
-## Berechtigungen
+## Permissions
 
-| Berechtigung | Typ | Admin-Consent laut Microsoft | Wofür PresenceSync sie nutzt |
+| Permission | Type | Admin consent per Microsoft | What PresenceSync uses it for |
 | --- | --- | --- | --- |
-| `User.Read` | delegiert | nein | Anmeldung, eigene Objekt-ID, einmalig der Name Ihres Tenants als Beschriftung in der App |
-| `Presence.ReadWrite` | delegiert | nein | eigenen Teams-Status lesen und setzen |
-| `offline_access` | delegiert | nein | Token-Erneuerung im Hintergrund |
+| `User.Read` | delegated | no | sign-in, own object ID, once the name of your tenant as a label in the app |
+| `Presence.ReadWrite` | delegated | no | read and set own Teams status |
+| `offline_access` | delegated | no | token renewal in the background |
 
-Dass Ihr Tenant dennoch nach einer Administratorgenehmigung fragt, liegt an Ihrer Consent-Richtlinie, nicht an der
-Art der Berechtigungen. Die vollständige Liste der Graph-Aufrufe mit Häufigkeit steht in
-[architecture.md → Graph-Aufrufe](architecture.md#graph-aufrufe).
+If your tenant still asks for admin approval, that is due to your consent policy, not the kind of permissions. The
+complete list of Graph calls with their frequency is in
+[architecture.md → Graph calls](architecture.md#graph-calls).
 
-**Was die App nicht kann und nicht tut**
+**What the app cannot and does not do**
 
-- Keinen Status **anderer** Benutzer lesen oder setzen – delegierte Berechtigungen gelten nur für den angemeldeten
-  Benutzer, und die App adressiert ausschließlich dessen eigene ID.
-- Kein Zugriff auf Chats, Nachrichten, Mails, Dateien, Kalender, Kontakte, Teams-Inhalte oder Verzeichnisdaten anderer.
-- Keine Zugriffe ohne angemeldeten Benutzer, kein Server, keine Telemetrie.
+- Read or set the status of **other** users – delegated permissions apply only to the signed-in user, and the app
+  addresses only that user's own ID.
+- No access to chats, messages, mail, files, calendars, contacts, Teams content or other people's directory data.
+- No access without a signed-in user, no server, no telemetry.
 
-## Datenfluss in Kürze
+## Data flow in brief
 
-PresenceSync liest auf dem Gerät des Benutzers dessen Status in jedem seiner Tenants. Ist er in einem Tenant belegt,
-setzt die App in den anderen eine eigene Status-Session „Beschäftigt“ bzw. „Nicht stören“, die nach 5 Minuten
-abläuft und laufend erneuert wird, solange der Anlass besteht.
+On the user's device, PresenceSync reads the user's status in each of their tenants. If they are busy in one tenant,
+the app sets its own status session "Busy" or "Do not disturb" in the others, which expires after 5 minutes and is
+renewed continuously as long as the reason persists.
 
-- **Aus Ihrem Tenant hinaus** geht nur die Information „belegt / nicht belegt“ – keine Gesprächspartner, Themen,
-  Teilnehmer, Uhrzeiten oder Inhalte.
-- **Übertragen** wird nur über das Gerät des Benutzers, nicht über Dritte.
-- **Gespeichert** wird auf dem Gerät nur Tenant-ID, Anzeigename und Anmeldename. Der Token-Cache ist per Windows-DPAPI
-  an den Benutzer gebunden, das Protokoll enthält keine Token, Anmeldenamen sind maskiert.
+- **Out of your tenant** goes only the information "busy / not busy" – no call partners, subjects, participants,
+  times or content.
+- **Transfer** happens only via the user's device, not via third parties.
+- **Stored** on the device are only tenant ID, display name and sign-in name. The token cache is bound to the user via
+  Windows DPAPI, the log contains no tokens, and sign-in names are masked.
 
-Sequenzdiagramm und Tabelle aller Daten: [architecture.md → Datenfluss](architecture.md#datenfluss-beim-auto-sync).
+Sequence diagram and table of all data: [architecture.md → Data flow](architecture.md#data-flow-during-auto-sync).
 
-## Sicherheit
+## Security
 
-- **Minimale Rechte:** drei delegierte Low-Privilege-Berechtigungen, keine Application Permissions, keine Secrets.
-- **Conditional Access gilt vollständig.** Die App ist ein normaler öffentlicher Client und unterliegt allen
-  Richtlinien Ihres Tenants (MFA, Gerätekonformität, Standort, Sitzungsdauer). Verlangt eine Richtlinie ein Gerät, das
-  der Benutzer nicht hat, ist die App in Ihrem Tenant nicht nutzbar. Sie versucht nicht, das zu umgehen: keine fremden
-  Client-IDs, keine undokumentierten Endpunkte.
-- **Keine automatischen Anmeldedialoge:** Interaktive Anmeldung nur nach ausdrücklichem Klick des Benutzers.
-- **Fail-safe:** Status-Sessions laufen nach 5 Minuten von selbst ab; beim Beenden der App und beim Abmelden von
-  Windows werden sie aktiv gelöscht.
-- **Vorrang der Benutzerentscheidung:** Ein im Teams-Client gesetzter Status wird nicht überschrieben.
-- **Geringe Last:** pro Tenant etwa 3 Lesezugriffe pro Minute, Schreibzugriffe nur bei Statuswechseln; Drosselung wird
-  mit `Retry-After` und Backoff beachtet.
-- **Nachvollziehbar:** quelloffen, automatisierte Tests, Schwachstellenscan in der Build-Pipeline; Sicherheitsmodell
-  und bekannte Einschränkungen in [SECURITY.md](../SECURITY.md).
+- **Least privilege:** three delegated low-privilege permissions, no application permissions, no secrets.
+- **Conditional Access applies in full.** The app is a regular public client and is subject to all policies of your
+  tenant (MFA, device compliance, location, session lifetime). If a policy requires a device the user does not have,
+  the app cannot be used in your tenant. It does not try to circumvent that: no third-party client IDs, no
+  undocumented endpoints.
+- **No automatic sign-in dialogs:** interactive sign-in only after an explicit click by the user.
+- **Fail-safe:** status sessions expire on their own after 5 minutes; they are actively cleared when the app exits
+  and when the user signs out of Windows.
+- **User decision takes precedence:** a status set in the Teams client is not overwritten.
+- **Low load:** about 3 reads per minute per tenant, writes only on status changes; throttling is honored with
+  `Retry-After` and backoff.
+- **Transparent:** open source, automated tests, vulnerability scanning in the build pipeline; security model and
+  known limitations in [SECURITY.md](../SECURITY.md).
 
-**Worst Case:** Erlangt ein Angreifer Codeausführung auf dem Gerät des Benutzers und missbraucht diese App, kann er
-den Teams-Status **dieses einen Benutzers** lesen und ändern – mehr nicht.
+**Worst case:** if an attacker gains code execution on the user's device and abuses this app, they can read and
+change the Teams status of **this one user** – nothing more.
 
-## Zustimmung erteilen
+## Granting consent
 
-Ersetzen Sie `<clientId>` durch die Client-ID aus der Anfrage und `<tenant>` durch Ihre Tenant-ID oder Domain.
+Replace `<clientId>` with the client ID from the request and `<tenant>` with your tenant ID or domain.
 
-### Variante 1 (empfohlen): nur für den einen Benutzer
+### Option 1 (recommended): for this one user only
 
-Die Berechtigungen gelten ausschließlich für das Konto des anfragenden Benutzers; für alle anderen gibt es keine
-Freigabe.
+The permissions apply exclusively to the requesting user's account; nothing is granted for anyone else.
 
 ```powershell
 Connect-MgGraph -Scopes "Application.ReadWrite.All","DelegatedPermissionGrant.ReadWrite.All" -TenantId <tenant>
@@ -103,7 +102,7 @@ Connect-MgGraph -Scopes "Application.ReadWrite.All","DelegatedPermissionGrant.Re
 $app   = Get-MgServicePrincipal -Filter "appId eq '<clientId>'"
 if (-not $app) { $app = New-MgServicePrincipal -AppId '<clientId>' }
 $graph = Get-MgServicePrincipal -Filter "appId eq '00000003-0000-0000-c000-000000000000'"
-$user  = Get-MgUser -UserId '<upn-des-benutzers>'
+$user  = Get-MgUser -UserId '<user-upn>'
 
 New-MgOauth2PermissionGrant -BodyParameter @{
     clientId    = $app.Id
@@ -114,52 +113,51 @@ New-MgOauth2PermissionGrant -BodyParameter @{
 }
 ```
 
-### Variante 2: Admin-Consent mit Zuweisungspflicht
+### Option 2: admin consent with required assignment
 
-1. Zustimmung erteilen: `https://login.microsoftonline.com/<tenant>/adminconsent?client_id=<clientId>`
-2. *Entra Admin Center → Unternehmensanwendungen → PresenceSync → Eigenschaften →* **Zuweisung erforderlich = Ja**
-3. *Benutzer und Gruppen →* nur den anfragenden Benutzer zuweisen.
+1. Grant consent: `https://login.microsoftonline.com/<tenant>/adminconsent?client_id=<clientId>`
+2. *Entra admin center → Enterprise applications → PresenceSync → Properties →* **Assignment required? = Yes**
+3. *Users and groups →* assign only the requesting user.
 
-### Variante 3: über den Admin-Consent-Workflow
+### Option 3: via the admin consent workflow
 
-Hat der Benutzer bereits eine Anfrage gestellt, finden Sie sie unter *Unternehmensanwendungen →
-Administratorzustimmungsanforderungen*. Nach der Genehmigung empfehlen wir zusätzlich die Schritte 2 und 3 aus
-Variante 2.
+If the user has already submitted a request, you will find it under *Enterprise applications → Admin consent
+requests*. After approval, we recommend also performing steps 2 and 3 from option 2.
 
-## Überwachen und widerrufen
+## Monitoring and revoking
 
-| Aufgabe | Ort |
+| Task | Where |
 | --- | --- |
-| Anmeldungen der App sehen | *Entra ID → Anmeldeprotokolle*, Filter Anwendung = „PresenceSync“ |
-| Graph-Aufrufe nachvollziehen | Microsoft-Graph-Aktivitätsprotokolle (sofern aktiviert), Filter auf die Client-ID |
-| Erteilte Berechtigungen prüfen | *Unternehmensanwendungen → PresenceSync → Berechtigungen* |
-| Zugriff für einen Benutzer entziehen | Zuweisung entfernen bzw. dessen `oauth2PermissionGrant` löschen |
-| App vollständig sperren | *Unternehmensanwendungen → PresenceSync → Eigenschaften →* „Für Benutzer aktiviert, sich anzumelden?“ = Nein, oder die Unternehmensanwendung löschen |
-| Laufende Sitzungen beenden | *Benutzer → Sitzungen widerrufen* |
+| See the app's sign-ins | *Entra ID → Sign-in logs*, filter Application = "PresenceSync" |
+| Trace Graph calls | Microsoft Graph activity logs (if enabled), filter on the client ID |
+| Review granted permissions | *Enterprise applications → PresenceSync → Permissions* |
+| Revoke access for one user | remove the assignment or delete their `oauth2PermissionGrant` |
+| Block the app completely | *Enterprise applications → PresenceSync → Properties →* "Enabled for users to sign in?" = No, or delete the enterprise application |
+| End active sessions | *Users → Revoke sessions* |
 
-Nach einem Widerruf zeigt PresenceSync den Tenant als „Gesperrt“ bzw. „Anmeldung erforderlich“; eine gesetzte
-Status-Session läuft spätestens nach 5 Minuten ab.
+After a revocation, PresenceSync shows the tenant as "Blocked: …" or "Sign-in required"; any status session that was
+set expires after 5 minutes at most.
 
-## Häufige Fragen
+## FAQ
 
-**Sieht PresenceSync, mit wem der Benutzer in unserem Tenant telefoniert?**
-Nein. Graph liefert für den eigenen Status nur Verfügbarkeit und Aktivität (z. B. „Im Anruf“), keine Gesprächspartner.
+**Does PresenceSync see who the user is on a call with in our tenant?**
+No. For the user's own status, Graph only returns availability and activity (e.g. "In a call"), no call partners.
 
-**Erfährt ein anderer Kunde etwas über unseren Tenant?**
-Nur, dass der Benutzer gerade „belegt“ ist – dasselbe, als hätte er dort manuell „Beschäftigt“ gesetzt.
+**Does another customer learn anything about our tenant?**
+Only that the user is currently "busy" – the same as if they had set "Busy" manually there.
 
-**Kann die App den Status unserer Mitarbeiter ändern?**
-Nein. Delegierte Berechtigungen gelten nur für den angemeldeten Benutzer; die App adressiert ausschließlich dessen ID.
+**Can the app change the status of our employees?**
+No. Delegated permissions apply only to the signed-in user; the app addresses only that user's ID.
 
-**Braucht die App Administratorrechte auf dem Gerät?**
-Nein. Sie läuft im Benutzerkontext.
+**Does the app need administrator rights on the device?**
+No. It runs in the user context.
 
-**Fordert die App künftig mehr Rechte an?**
-Geplant ist optional ein Kalender-Abgleich, der anonyme „Blocker“-Termine im **eigenen** Kalender des Benutzers
-anlegt (`Calendars.ReadWrite`). Diese Berechtigung ist nicht Teil der aktuellen Registrierung und würde erst bei
-Aktivierung **gesondert** angefragt, mit eigener Zustimmung und aktualisierter Dokumentation.
+**Will the app request more permissions in the future?**
+An optional calendar sync is planned that creates anonymous "blocker" appointments in the user's **own** calendar
+(`Calendars.ReadWrite`). This permission is not part of the current registration and would only be requested
+**separately** when the feature is enabled, with its own consent and updated documentation.
 
-## Kontakt
+## Contact
 
-Fragen zur konkreten Anfrage richten Sie an den anfragenden Benutzer bzw. dessen Organisation.
-Sicherheitsmeldungen zur Software: [SECURITY.md](../SECURITY.md).
+Please direct questions about a specific request to the requesting user or their organization.
+Security reports about the software: [SECURITY.md](../SECURITY.md).

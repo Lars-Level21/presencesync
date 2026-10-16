@@ -1,3 +1,4 @@
+using PresenceSync.Core.Resources;
 using System.Windows.Interop;
 using PresenceSync.App.ViewModels;
 using Wpf.Ui.Appearance;
@@ -20,9 +21,9 @@ internal partial class SettingsWindow : FluentWindow
                 Owner = this,
                 Title = title,
                 Content = new System.Windows.Controls.TextBlock { Text = text, TextWrapping = System.Windows.TextWrapping.Wrap, MaxWidth = 460 },
-                PrimaryButtonText = "Ersetzen",
+                PrimaryButtonText = Strings.Replace_Button,
                 PrimaryButtonAppearance = ControlAppearance.Caution,
-                CloseButtonText = "Abbrechen",
+                CloseButtonText = Strings.Common_Cancel,
             };
             return await box.ShowDialogAsync() == Wpf.Ui.Controls.MessageBoxResult.Primary;
         };

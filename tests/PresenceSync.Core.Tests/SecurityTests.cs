@@ -8,9 +8,9 @@ public sealed class SecurityTests
     [Fact]
     public void Redaction_masks_email_addresses()
     {
-        var text = LogRedaction.Redact("AADSTS50076: user lars.martin@kunde-a.de must use MFA");
-        Assert.DoesNotContain("lars.martin@kunde-a.de", text);
-        Assert.Contains("la***@ku***.de", text);
+        var text = LogRedaction.Redact("AADSTS50076: user lars.martin@customer-a.de must use MFA");
+        Assert.DoesNotContain("lars.martin@customer-a.de", text);
+        Assert.Contains("la***@cu***.de", text);
     }
 
     [Fact]
@@ -34,7 +34,7 @@ public sealed class SecurityTests
     [InlineData("6f1c2a3b-4d5e-4f60-8a7b-9c0d1e2f3a4b", true)]
     [InlineData("level21.info", true)]
     [InlineData("contoso.onmicrosoft.com", true)]
-    [InlineData("kunde-a.co.uk", true)]
+    [InlineData("customer-a.co.uk", true)]
     [InlineData("", false)]
     [InlineData("contoso", false)]
     [InlineData("../common", false)]

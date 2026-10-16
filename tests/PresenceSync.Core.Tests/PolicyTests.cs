@@ -61,7 +61,7 @@ public sealed class PolicyTests
     [Fact]
     public void Home_tenant_is_added_once_as_managed_home()
     {
-        var config = new AppConfig { Tenants = [new TenantConfig { Name = "Kunde A", TenantId = "44444444-4444-4444-4444-444444444444" }] };
+        var config = new AppConfig { Tenants = [new TenantConfig { Name = "Customer A", TenantId = "44444444-4444-4444-4444-444444444444" }] };
         var policy = new PolicySettings(null, HomeTenant, null);
 
         var state = PolicyApplier.Apply(config, policy);

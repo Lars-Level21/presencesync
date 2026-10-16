@@ -10,6 +10,7 @@ using Microsoft.Identity.Client.Extensions.Msal;
 using Microsoft.Win32;
 using PresenceSync.App.ViewModels;
 using PresenceSync.App.Views;
+using PresenceSync.Core.Resources;
 using PresenceSync.Core.Configuration;
 using PresenceSync.Core.Presence;
 using PresenceSync.Core.Sync;
@@ -55,7 +56,7 @@ internal sealed class AppController : ITrayActions, IDisposable
 
         _tray = new TaskbarIcon
         {
-            ToolTipText = "PresenceSync – startet …",
+            ToolTipText = Strings.Tray_Starting,
             Icon = Theme.TrayIcon(PresenceGlyph.Offline),
             NoLeftClickDelay = true,
             PopupActivation = PopupActivationMode.None,
@@ -85,8 +86,8 @@ internal sealed class AppController : ITrayActions, IDisposable
         }
         catch (Exception ex)
         {
-            _log.LogError(ex, "config.json konnte nicht gelesen werden");
-            System.Windows.MessageBox.Show($"config.json ist ungültig und wird ignoriert:\n{ex.Message}\n\n{_store.Path}",
+            _log.LogError(ex, "config.json could not be read");
+            System.Windows.MessageBox.Show(Strings.Format(nameof(Strings.Notify_ConfigInvalid), ex.Message, _store.Path),
                 "PresenceSync", MessageBoxButton.OK, MessageBoxImage.Warning);
             config = new AppConfig();
         }
@@ -102,11 +103,11 @@ internal sealed class AppController : ITrayActions, IDisposable
         var policy = RegistryPolicySource.Read();
         _policy = PolicyApplier.Apply(config, policy);
         foreach (var warning in _policy.Warnings)
-            _log.LogWarning("Richtlinie: {Warning}", warning);
+            _log.LogWarning("Policy: {Warning}", warning);
         if (_policy.IsActive && !_policyLogged)
         {
-            _log.LogInformation("Richtlinie aktiv: Client-ID {Locked}, verwalteter Home-Tenant {Tenant}",
-                _policy.ClientIdLocked ? "vorgegeben" : "frei", _policy.ManagedTenantId ?? "–");
+            _log.LogInformation("Policy active: client ID {Locked}, managed home tenant {Tenant}",
+                _policy.ClientIdLocked ? "enforced" : "not enforced", _policy.ManagedTenantId ?? "–");
             _policyLogged = true;
         }
     }
@@ -122,8 +123,8 @@ internal sealed class AppController : ITrayActions, IDisposable
         }
         catch (Exception ex)
         {
-            _log.LogError(ex, "Initialisierung fehlgeschlagen");
-            Notify("PresenceSync konnte nicht starten", ex.Message, NotificationIcon.Error);
+            _log.LogError(ex, "Initialization failed");
+            Notify(Strings.Notify_StartFailed, ex.Message, NotificationIcon.Error);
         }
     }
 
@@ -180,7 +181,7 @@ internal sealed class AppController : ITrayActions, IDisposable
         }
         catch (Exception ex)
         {
-            _log.LogWarning(ex, "Autostart konnte nicht gesetzt werden");
+            _log.LogWarning(ex, "Autostart could not be set");
         }
 
         RegisterHotkeys();
@@ -189,7 +190,7 @@ internal sealed class AppController : ITrayActions, IDisposable
         _loop!.Start();
         _loop.TriggerNow();
 
-        _log.LogInformation("Konfiguration aktiv: {Count} Tenant(s), Intervall {Interval}, Auto-Sync {AutoSync}",
+        _log.LogInformation("Configuration active: {Count} tenant(s), interval {Interval}, auto-sync {AutoSync}",
             config.Tenants.Count, config.PollInterval, config.AutoSync);
     }
 
@@ -233,8 +234,8 @@ internal sealed class AppController : ITrayActions, IDisposable
         }
         catch (Exception ex)
         {
-            _log.LogError(ex, "Konfiguration konnte nicht übernommen werden");
-            Notify("Einstellungen nicht übernommen", ex.Message, NotificationIcon.Error);
+            _log.LogError(ex, "Configuration could not be applied");
+            Notify(Strings.Notify_SettingsNotApplied, ex.Message, NotificationIcon.Error);
         }
     }
 
@@ -253,7 +254,7 @@ internal sealed class AppController : ITrayActions, IDisposable
         {
             // New icon instance per change: the tray icon releases the previous one, so instances are never reused.
             _tray.Icon = Theme.TrayIcon(glyph);
-            _log.LogInformation("Tray-Status: {State}", glyph);
+            _log.LogInformation("Tray state: {State}", glyph);
             _trayGlyph = glyph;
         }
         _tray.ToolTipText = _vm.ToolTip;
@@ -266,8 +267,8 @@ internal sealed class AppController : ITrayActions, IDisposable
         {
             _lastHealth.TryGetValue(t.TenantId, out var previous);
             if (t.HasProblem && previous != t.Health)
-                Notify($"{t.Name}: {(t.Health == TenantHealth.AuthRequired ? "Anmeldung erforderlich" : "Tenant gesperrt")}",
-                    (t.HealthMessage ?? "") + "\nIm PresenceSync-Fenster beheben.", NotificationIcon.Warning);
+                Notify(Strings.Format(t.Health == TenantHealth.AuthRequired ? nameof(Strings.Notify_TenantSignInRequired) : nameof(Strings.Notify_TenantBlocked), t.Name),
+                    (t.HealthMessage ?? "") + "\n" + Strings.Notify_FixInWindow, NotificationIcon.Warning);
             _lastHealth[t.TenantId] = t.Health;
         }
     }
@@ -298,7 +299,7 @@ internal sealed class AppController : ITrayActions, IDisposable
         }
         catch (Exception ex)
         {
-            _log.LogWarning(ex, "Benachrichtigung konnte nicht angezeigt werden");
+            _log.LogWarning(ex, "Notification could not be shown");
         }
     }
 
@@ -345,27 +346,26 @@ internal sealed class AppController : ITrayActions, IDisposable
                 var isGuest = result.Account.HomeAccountId?.TenantId is { } home && !Same(home, result.TenantId);
                 var box = new Wpf.Ui.Controls.MessageBox
                 {
-                    Title = "Konto im Tenant ersetzen?",
+                    Title = Strings.Replace_Title,
                     Content = new TextBlock
                     {
-                        Text = $"Für „{tenant.Name}“ ist bereits ein Konto eingerichtet. PresenceSync synchronisiert pro Tenant genau ein Konto.\n\n" +
-                               $"Bisher:\t{tenant.Upn}\nNeu:\t{upn} ({(isGuest ? "Gastkonto" : "Mitgliedskonto")})\n\n" +
-                               "Soll das bisherige Konto durch das neue ersetzt werden?",
+                        Text = Strings.Format(nameof(Strings.Replace_Text), tenant.Name, tenant.Upn,
+                            Strings.Format(nameof(Strings.Account_WithType), upn, isGuest ? Strings.Account_Guest : Strings.Account_Member)),
                         TextWrapping = TextWrapping.Wrap,
                         MaxWidth = 460,
                     },
-                    PrimaryButtonText = "Ersetzen",
+                    PrimaryButtonText = Strings.Replace_Button,
                     PrimaryButtonAppearance = Wpf.Ui.Controls.ControlAppearance.Caution,
-                    CloseButtonText = "Abbrechen",
+                    CloseButtonText = Strings.Common_Cancel,
                 };
                 if (await box.ShowDialogAsync() != Wpf.Ui.Controls.MessageBoxResult.Primary)
                 {
                     // Rebuilds the authenticator for the configured account (its UPN no longer matches).
                     await SaveAndApplyAsync(_config);
-                    _log.LogInformation("{Tenant}: Kontowechsel abgebrochen, bisheriges Konto bleibt", tenant.Name);
+                    _log.LogInformation("{Tenant}: account change canceled, keeping the current account", tenant.Name);
                     return;
                 }
-                _log.LogInformation("{Tenant}: Konto ersetzt", tenant.Name);
+                _log.LogInformation("{Tenant}: account replaced", tenant.Name);
             }
             if (!string.Equals(tenant.Upn, upn, StringComparison.OrdinalIgnoreCase))
             {
@@ -377,13 +377,13 @@ internal sealed class AppController : ITrayActions, IDisposable
         }
         catch (TenantAccessException ex)
         {
-            _log.LogWarning("Anmeldung an {Tenant} fehlgeschlagen: {Message}", tenantId, ex.UserMessage);
-            Notify("Anmeldung fehlgeschlagen", ex.UserMessage, NotificationIcon.Error);
+            _log.LogWarning("Sign-in to {Tenant} failed: {Message}", tenantId, ex.Message);
+            Notify(Strings.Notify_SignInFailed, ex.UserMessage, NotificationIcon.Error);
         }
         catch (Exception ex)
         {
-            _log.LogError(ex, "Anmeldung an {Tenant} fehlgeschlagen", tenantId);
-            Notify("Anmeldung fehlgeschlagen", ex.Message, NotificationIcon.Error);
+            _log.LogError(ex, "Sign-in to {Tenant} failed", tenantId);
+            Notify(Strings.Notify_SignInFailed, ex.Message, NotificationIcon.Error);
         }
     }
 
@@ -418,7 +418,7 @@ internal sealed class AppController : ITrayActions, IDisposable
         }
         catch (Exception ex)
         {
-            _log.LogWarning(ex, "Log konnte nicht geöffnet werden");
+            _log.LogWarning(ex, "Log could not be opened");
         }
     }
 
@@ -449,7 +449,7 @@ internal sealed class AppController : ITrayActions, IDisposable
         var engine = _engine;
         if (engine is null)
         {
-            Notify("PresenceSync ist nicht eingerichtet", "Client-ID und Tenants in den Einstellungen eintragen.", NotificationIcon.Warning);
+            Notify(Strings.Notify_NotConfiguredTitle, Strings.Notify_NotConfiguredText, NotificationIcon.Warning);
             return;
         }
         _ = Task.Run(async () =>
@@ -462,8 +462,8 @@ internal sealed class AppController : ITrayActions, IDisposable
             }
             catch (Exception ex)
             {
-                _log.LogError(ex, "Aktion fehlgeschlagen");
-                _ = _app.Dispatcher.BeginInvoke(() => Notify("Aktion fehlgeschlagen", ex.Message, NotificationIcon.Error));
+                _log.LogError(ex, "Action failed");
+                _ = _app.Dispatcher.BeginInvoke(() => Notify(Strings.Notify_ActionFailed, ex.Message, NotificationIcon.Error));
             }
         });
     }
@@ -472,15 +472,14 @@ internal sealed class AppController : ITrayActions, IDisposable
     {
         if (results.Count == 0)
         {
-            _app.Dispatcher.BeginInvoke(() => Notify("Kein aktiver Tenant",
-                "Es ist kein angemeldeter, aktiver Tenant eingerichtet. Tenants in den Einstellungen hinzufügen und speichern.",
+            _app.Dispatcher.BeginInvoke(() => Notify(Strings.Notify_NoActiveTenantTitle, Strings.Notify_NoActiveTenantText,
                 NotificationIcon.Warning));
             return;
         }
 
         var failed = results.Where(r => !r.Success).ToList();
         if (failed.Count > 0)
-            _app.Dispatcher.BeginInvoke(() => Notify("Status nicht überall gesetzt",
+            _app.Dispatcher.BeginInvoke(() => Notify(Strings.Notify_PartialStatusTitle,
                 string.Join("\n", failed.Select(f => $"{f.Name}: {f.Error}")), NotificationIcon.Warning));
     }
 
@@ -490,7 +489,7 @@ internal sealed class AppController : ITrayActions, IDisposable
     {
         if (e.Mode == PowerModes.Resume)
         {
-            _log.LogInformation("Resume aus Standby – sofortiger Poll");
+            _log.LogInformation("Resumed from standby – polling now");
             _loop?.TriggerNow();
         }
     }
@@ -506,7 +505,7 @@ internal sealed class AppController : ITrayActions, IDisposable
 
     public void OnSessionEnding(string reason)
     {
-        _log.LogInformation("Windows-{Reason}: eigene Sessions werden beendet", reason);
+        _log.LogInformation("Windows {Reason}: ending own sessions", reason);
         ClearSessionsBlocking(TimeSpan.FromSeconds(3));
     }
 
@@ -523,7 +522,7 @@ internal sealed class AppController : ITrayActions, IDisposable
         }
         catch (Exception ex)
         {
-            _log.LogWarning(ex, "Sessions konnten nicht beendet werden");
+            _log.LogWarning(ex, "Sessions could not be ended");
         }
     }
 

@@ -1,3 +1,4 @@
+using PresenceSync.Core.Resources;
 using PresenceSync.Core.Presence;
 
 namespace PresenceSync.Core.Sync;
@@ -40,17 +41,33 @@ public enum TenantFailureKind
     Transient,
 }
 
-public class TenantAccessException(
-    TenantFailureKind kind,
-    string userMessage,
-    TimeSpan? retryAfter = null,
-    Exception? inner = null)
-    : Exception(userMessage, inner)
+/// <summary>
+/// Failure of a tenant operation. <see cref="UserMessage"/> is shown in the UI language,
+/// <see cref="Exception.Message"/> is English for the log. Never contains tokens.
+/// </summary>
+public class TenantAccessException : Exception
 {
-    public TenantFailureKind Kind { get; } = kind;
+    public TenantAccessException(TenantFailureKind kind, LocalizedMessage message, TimeSpan? retryAfter = null, Exception? inner = null)
+        : base(message.LogText, inner)
+    {
+        Kind = kind;
+        UserMessage = message.Text;
+        RetryAfter = retryAfter;
+    }
 
-    /// <summary>German plain-text message for tray and log. Never contains tokens.</summary>
-    public string UserMessage { get; } = userMessage;
+    /// <summary>Unlocalized message (tests, fakes): same text for UI and log.</summary>
+    public TenantAccessException(TenantFailureKind kind, string message, TimeSpan? retryAfter = null, Exception? inner = null)
+        : base(message, inner)
+    {
+        Kind = kind;
+        UserMessage = message;
+        RetryAfter = retryAfter;
+    }
 
-    public TimeSpan? RetryAfter { get; } = retryAfter;
+    public TenantFailureKind Kind { get; }
+
+    /// <summary>Plain-text message in the UI language for tray and settings.</summary>
+    public string UserMessage { get; }
+
+    public TimeSpan? RetryAfter { get; }
 }

@@ -3,7 +3,7 @@ namespace PresenceSync.Core.Diagnostics;
 /// <summary>Masks personal data before it is written to the log.</summary>
 public static class Mask
 {
-    /// <summary>"lars.martin@kunde-a.de" → "la***@ku***.de"</summary>
+    /// <summary>"lars.martin@customer-a.de" → "la***@cu***.de"</summary>
     public static string Upn(string? upn)
     {
         if (string.IsNullOrWhiteSpace(upn))

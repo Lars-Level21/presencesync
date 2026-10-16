@@ -7,7 +7,7 @@
   <resources>
     <stringTable>
       <string id="PresenceSync">PresenceSync</string>
-      <string id="SUPPORTED_PresenceSync_0_1">PresenceSync 0.1 und neuer</string>
+      <string id="SUPPORTED_PresenceSync_0_1">PresenceSync 1.0 und neuer</string>
       <string id="ClientId">Client-ID der App-Registrierung vorgeben</string>
       <string id="ClientId_Help">Legt die Client-ID (Anwendungs-ID) der App-Registrierung fest, mit der PresenceSync sich anmeldet.
 

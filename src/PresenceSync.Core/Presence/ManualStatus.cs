@@ -25,7 +25,7 @@ public static class ManualStatusExtensions
 
     /// <summary>
     /// Graph applies a default expiration when none is sent: 1 day for Busy/DoNotDisturb, 7 days otherwise.
-    /// "Unbegrenzt" in the tray therefore means "Graph default", not forever.
+    /// "Unlimited" in the tray therefore means "Graph default", not forever.
     /// </summary>
     public static TimeSpan GraphDefaultExpiration(this ManualStatus status) =>
         status is ManualStatus.Busy or ManualStatus.DoNotDisturb ? TimeSpan.FromDays(1) : TimeSpan.FromDays(7);

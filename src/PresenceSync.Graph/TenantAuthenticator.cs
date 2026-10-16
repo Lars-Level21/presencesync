@@ -25,6 +25,12 @@ public sealed class TenantAuthenticator
     private readonly ILogger _log;
     private readonly bool _useBroker;
 
+    /// <summary>A cached token is renewed this long before it expires.</summary>
+    private static readonly TimeSpan TokenRenewalMargin = TimeSpan.FromMinutes(5);
+
+    private readonly SemaphoreSlim _tokenLock = new(1, 1);
+    private (string Token, DateTimeOffset ExpiresOn)? _cachedToken;
+
     /// <summary>Authority used once, to let the user pick a work/school account; the token lands in the account's own tenant.</summary>
     private const string AccountSelectionAuthority = "organizations";
 
@@ -80,8 +86,31 @@ public sealed class TenantAuthenticator
     /// </summary>
     public bool AllowOperatingSystemAccount { get; set; }
 
-    /// <summary>Silent token acquisition. Throws <see cref="TenantAccessException"/>, never shows UI.</summary>
+    /// <summary>
+    /// Silent token acquisition. Throws <see cref="TenantAccessException"/>, never shows UI.
+    /// Access tokens are reused until shortly before they expire: polling every 20 s would otherwise ask the Windows
+    /// broker (WAM) for a token on every request, which puts needless load on that shared system component.
+    /// </summary>
     public async Task<string> GetTokenSilentAsync(bool forceRefresh, CancellationToken ct)
+    {
+        await _tokenLock.WaitAsync(ct);
+        try
+        {
+            if (!forceRefresh && _cachedToken is { } cached && cached.ExpiresOn - TokenRenewalMargin > DateTimeOffset.UtcNow)
+                return cached.Token;
+
+            var result = await AcquireSilentAsync(forceRefresh, ct);
+            _cachedToken = (result.AccessToken, result.ExpiresOn);
+            _log.LogInformation("Token acquired from broker for tenant {Tenant}, valid until {ExpiresOn:u}", Tenant, result.ExpiresOn);
+            return result.AccessToken;
+        }
+        finally
+        {
+            _tokenLock.Release();
+        }
+    }
+
+    private async Task<AuthenticationResult> AcquireSilentAsync(bool forceRefresh, CancellationToken ct)
     {
         try
         {
@@ -107,7 +136,7 @@ public sealed class TenantAuthenticator
                 Upn = result.Account.Username;
                 _log.LogInformation("Signed in automatically with Windows account: {Upn} in tenant {TenantId}", Mask.Upn(Upn), result.TenantId);
             }
-            return result.AccessToken;
+            return result;
         }
         catch (MsalException ex)
         {
@@ -125,6 +154,7 @@ public sealed class TenantAuthenticator
 
             var result = await request.ExecuteAsync(ct);
             Upn = result.Account.Username;
+            _cachedToken = null; // the next silent call fetches a token for the (possibly new) account
             _log.LogInformation("Sign-in successful: {Upn} in tenant {TenantId}", Mask.Upn(Upn), result.TenantId);
             return result;
         }

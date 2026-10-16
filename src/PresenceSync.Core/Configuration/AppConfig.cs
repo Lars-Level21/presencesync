@@ -40,10 +40,10 @@ public sealed class HotkeyConfig
 {
     public bool Enabled { get; set; }
 
-    /// <summary>"Alle → Nicht stören 1 h". Format: modifiers + key, e.g. "Ctrl+Alt+D".</summary>
+    /// <summary>"All → Do not disturb 1 h". Format: modifiers + key, e.g. "Ctrl+Alt+D".</summary>
     public string DoNotDisturbOneHour { get; set; } = "Ctrl+Alt+D";
 
-    /// <summary>"Alle → Zurücksetzen".</summary>
+    /// <summary>"All → Reset".</summary>
     public string Reset { get; set; } = "Ctrl+Alt+R";
 }
 

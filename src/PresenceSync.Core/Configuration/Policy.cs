@@ -1,3 +1,5 @@
+using PresenceSync.Core.Resources;
+
 namespace PresenceSync.Core.Configuration;
 
 /// <summary>
@@ -33,7 +35,6 @@ public sealed record PolicyState(bool ClientIdLocked, string? ManagedTenantId, I
 
 public static class PolicyApplier
 {
-    public const string DefaultHomeTenantName = "Home-Tenant";
 
     /// <summary>
     /// Applies the policy to <paramref name="config"/> in place:
@@ -53,7 +54,7 @@ public static class PolicyApplier
         {
             if (!Guid.TryParse(clientId, out _))
             {
-                warnings.Add($"Richtlinie ClientId ist keine GUID und wird ignoriert: \"{clientId}\"");
+                warnings.Add($"Policy ClientId is not a GUID and is ignored: \"{clientId}\"");
             }
             else if (policy.AllowCustomClientId == true)
             {
@@ -71,7 +72,7 @@ public static class PolicyApplier
         {
             if (!Guid.TryParse(homeTenant, out _))
             {
-                warnings.Add($"Richtlinie HomeTenantId ist keine Tenant-ID (GUID) und wird ignoriert: \"{homeTenant}\"");
+                warnings.Add($"Policy HomeTenantId is not a tenant ID (GUID) and is ignored: \"{homeTenant}\"");
             }
             else
             {
@@ -81,7 +82,7 @@ public static class PolicyApplier
                 {
                     config.Tenants.Insert(0, new TenantConfig
                     {
-                        Name = DefaultHomeTenantName,
+                        Name = Strings.Policy_HomeTenantDefaultName,
                         TenantId = homeTenant,
                         Upn = "",
                         Enabled = true,

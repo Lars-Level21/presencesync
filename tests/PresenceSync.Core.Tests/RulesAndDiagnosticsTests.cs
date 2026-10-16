@@ -45,7 +45,7 @@ public sealed class RulesAndDiagnosticsTests
     }
 
     [Theory]
-    [InlineData("lars.martin@kunde-a.de", "la***@ku***.de")]
+    [InlineData("lars.martin@customer-a.de", "la***@cu***.de")]
     [InlineData("l@x.io", "***@***.io")]
     [InlineData("", "")]
     [InlineData(null, "")]
@@ -57,7 +57,9 @@ public sealed class RulesAndDiagnosticsTests
         var result = AadErrorCatalog.Classify("AADSTS53000: Device is not in required device state: compliant.");
         Assert.NotNull(result);
         Assert.Equal(TenantFailureKind.Disabled, result.Value.Kind);
-        Assert.Contains("konformes", result.Value.Text);
+        Assert.Equal("Conditional Access requires a compliant device (AADSTS53000)", result.Value.Message.LogText);
+        using (new UICulture("de-DE"))
+            Assert.Equal("Conditional Access verlangt ein konformes (compliant) Gerät (AADSTS53000)", result.Value.Message.Text);
     }
 
     [Fact]
@@ -70,14 +72,18 @@ public sealed class RulesAndDiagnosticsTests
     [Fact]
     public void Unknown_code_returns_null() => Assert.Null(AadErrorCatalog.Classify("AADSTS99999 whatever"));
 
-    [Fact]
-    public void Status_line_texts()
+    [Theory]
+    [InlineData("en-US", "In a call (source)", "Busy (sync)", "Sign-in required")]
+    [InlineData("de-DE", "Im Anruf (Quelle)", "Beschäftigt (Sync)", "Anmeldung erforderlich")]
+    [InlineData("fr-FR", "In a call (source)", "Busy (sync)", "Sign-in required")] // unsupported language → English
+    public void Status_line_follows_ui_language(string culture, string source, string synced, string signIn)
     {
-        var source = new TenantSnapshot("a", "Kunde A", true, new PresenceInfo("Busy", "InACall"), TenantRole.Source,
+        using var _ = new UICulture(culture);
+        var tenant = new TenantSnapshot("a", "Customer A", true, new PresenceInfo("Busy", "InACall"), TenantRole.Source,
             TenantHealth.Ok, null, null, null, null);
-        var synced = source with { Role = TenantRole.Synced, Presence = new PresenceInfo("Busy", "Busy") };
-        Assert.Equal("Im Anruf (Quelle)", source.StatusLine);
-        Assert.Equal("Beschäftigt (Sync)", synced.StatusLine);
-        Assert.Equal("Anmeldung erforderlich", (source with { Health = TenantHealth.AuthRequired }).StatusLine);
+
+        Assert.Equal(source, tenant.StatusLine);
+        Assert.Equal(synced, (tenant with { Role = TenantRole.Synced, Presence = new PresenceInfo("Busy", "Busy") }).StatusLine);
+        Assert.Equal(signIn, (tenant with { Health = TenantHealth.AuthRequired }).StatusLine);
     }
 }

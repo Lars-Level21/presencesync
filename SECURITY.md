@@ -1,54 +1,53 @@
-# Sicherheit
+# Security
 
-## Schwachstellen melden
+## Reporting vulnerabilities
 
-Bitte melden Sie Sicherheitslücken **nicht** über öffentliche Issues, sondern vertraulich über GitHub:
-[Report a vulnerability](https://github.com/Lars-Level21/presencesync/security/advisories/new) (Private vulnerability
+Please do **not** report security vulnerabilities through public issues; report them confidentially via GitHub:
+[Report a vulnerability](https://github.com/Lars-Level21/presencesync/security/advisories/new) (private vulnerability
 reporting).
 
-Bitte beschreiben Sie betroffene Version, Schritte zur Reproduktion und mögliche Auswirkungen. Meldungen werden nach
-Möglichkeit bearbeitet; Reaktionszeiten werden nicht zugesichert (MIT-Lizenz, ohne Gewährleistung).
+Please describe the affected version, steps to reproduce and the potential impact. Reports are handled on a
+best-effort basis; no response times are guaranteed (MIT license, no warranty).
 
-## Unterstützte Versionen
+## Supported versions
 
-Sicherheitskorrekturen gibt es für das jeweils neueste Release.
+Security fixes are provided for the latest release.
 
-## Sicherheitsmodell in Kürze
+## Security model in brief
 
-- Lokale Windows-App, kein Backend, keine Telemetrie; Netzwerkziele nur `login.microsoftonline.com` und
+- Local Windows app, no backend, no telemetry; the only network endpoints are `login.microsoftonline.com` and
   `graph.microsoft.com`.
-- Nur delegierte Microsoft-Graph-Berechtigungen `User.Read`, `Presence.ReadWrite`, `offline_access`; Zugriff
-  ausschließlich auf den Teams-Status des angemeldeten Benutzers.
-- Anmeldung über MSAL mit Windows-Token-Broker (WAM); MFA und Conditional Access des jeweiligen Tenants gelten
-  uneingeschränkt. Anmeldedialoge öffnen sich nie automatisch.
-- Keine Secrets in Code oder Konfiguration; Token werden nicht geloggt, Anmeldenamen im Log maskiert.
-- Zentrale Vorgaben über `SOFTWARE\Policies\PresenceSync`, von Windows gegen Änderungen durch Standardbenutzer
-  geschützt.
-- Build-Pipeline mit Schwachstellenprüfung der Abhängigkeiten; Actions auf Commit-SHAs gepinnt, Dependabot aktiv.
+- Only the delegated Microsoft Graph permissions `User.Read`, `Presence.ReadWrite`, `offline_access`; access
+  exclusively to the signed-in user's Teams status.
+- Sign-in via MSAL with the Windows token broker (WAM); MFA and Conditional Access of each tenant apply without
+  restriction. Sign-in dialogs never open automatically.
+- No secrets in code or configuration; tokens are never logged, sign-in names are masked in the log.
+- Central settings via `SOFTWARE\Policies\PresenceSync`, protected by Windows against changes by standard users.
+- Build pipeline with vulnerability scanning of dependencies; Actions pinned to commit SHAs, Dependabot enabled.
 
-Details: [docs/architecture.md](docs/architecture.md) (Architektur, Datenflüsse, gespeicherte Daten) und
-[docs/consent.md](docs/consent.md) (Berechtigungen, Sicherheit aus Sicht eines Kunden-Tenants).
+Details: [docs/architecture.md](docs/architecture.md) (architecture, data flows, stored data) and
+[docs/consent.md](docs/consent.md) (permissions, security from a customer tenant's perspective).
 
-## Bekannte Einschränkungen
+## Known limitations
 
-Bewusste Entscheidungen, keine offenen Fehler:
+Deliberate decisions, not open bugs:
 
-| Thema | Beschreibung | Umgang |
+| Topic | Description | Mitigation |
 | --- | --- | --- |
-| Unsignierte Release-Exe | `PresenceSync.exe` in den Releases ist nicht Authenticode-signiert. Windows SmartScreen warnt beim ersten Start einer heruntergeladenen Datei; AppLocker/WDAC können sie nicht per Herausgeber freigeben. | Jedes Release hat eine SHA-256-Prüfsumme (siehe unten). Wer eine geprüfte Herkunft braucht, baut aus dem Quellcode und signiert mit dem eigenen Zertifikat. |
-| Entpackte Bibliotheken | Die Einzeldatei-Exe entpackt native Bibliotheken (WAM, WPF) nach `%TEMP%\.net\PresenceSync\…`. Ein Prozess desselben Benutzers könnte sie austauschen. | Setzt bereits Codeausführung im Benutzerkontext voraus – dann sind auch Teams und Office angreifbar. |
-| Konfiguration im Klartext | `%APPDATA%\PresenceSync\config.json` enthält Tenant-IDs, Anzeigenamen und Anmeldenamen. | Keine Geheimnisse in der Datei; der Token-Cache ist per Windows-DPAPI an den Benutzer gebunden, Refresh-Token verwaltet Windows (WAM). |
+| Unsigned release exe | `PresenceSync.exe` in the releases is not Authenticode-signed. Windows SmartScreen warns the first time a downloaded file is run; AppLocker/WDAC cannot allow it by publisher. | Every release has a SHA-256 checksum (see below). If you need verified provenance, build from source and sign with your own certificate. |
+| Extracted libraries | The single-file exe extracts native libraries (WAM, WPF) to `%TEMP%\.net\PresenceSync\…`. A process running as the same user could replace them. | Requires code execution in the user context already – at that point Teams and Office are vulnerable too. |
+| Plain-text configuration | `%APPDATA%\PresenceSync\config.json` contains tenant IDs, display names and sign-in names. | No secrets in the file; the token cache is bound to the user via Windows DPAPI, refresh tokens are managed by Windows (WAM). |
 
-Schadenspotenzial bei kompromittiertem Gerät: Ein Angreifer mit Codeausführung im Benutzerkontext kann über
-PresenceSync den Teams-Status **dieses Benutzers** lesen und setzen – keinen Zugriff auf andere Daten oder Benutzer.
+Impact if the device is compromised: an attacker with code execution in the user context can use PresenceSync to read
+and set the Teams status of **this user** – no access to other data or users.
 
-## Integrität der Releases
+## Release integrity
 
-Jedes Release wird per GitHub Actions aus dem getaggten Quellcode gebaut. Neben `PresenceSync.exe` liegt eine
-`PresenceSync.exe.sha256`. Prüfen:
+Every release is built by GitHub Actions from the tagged source code. Next to `PresenceSync.exe` there is a
+`PresenceSync.exe.sha256`. To verify:
 
 ```powershell
 (Get-FileHash .\PresenceSync.exe -Algorithm SHA256).Hash
 ```
 
-Der Wert muss mit der `.sha256`-Datei übereinstimmen.
+The value must match the `.sha256` file.

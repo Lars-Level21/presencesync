@@ -1,3 +1,4 @@
+using PresenceSync.Core.Resources;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using PresenceSync.Core.Configuration;
@@ -20,7 +21,8 @@ public sealed record SyncOptions(
         TimeSpan.FromSeconds(Math.Clamp(config.SourceCooldownSeconds, 0, 600)));
 }
 
-public sealed record TenantResult(string TenantId, string Name, bool Success, string? Error);
+/// <summary>Result per tenant: <see cref="Error"/> in the UI language, <see cref="LogError"/> in English.</summary>
+public sealed record TenantResult(string TenantId, string Name, bool Success, string? Error, string? LogError = null);
 
 /// <summary>
 /// Stateful sync state machine: polls presence of all tenants, applies <see cref="SyncPlanner"/> decisions,
@@ -100,7 +102,7 @@ public sealed class SyncEngine
         {
             ReleaseAndPublish();
         }
-        _log.LogInformation("Auto-Sync {State}", enabled ? "an" : "aus");
+        _log.LogInformation("Auto-sync {State}", enabled ? "on" : "off");
     }
 
     /// <summary>Called after a successful interactive sign-in: the tenant takes part again.</summary>
@@ -130,7 +132,7 @@ public sealed class SyncEngine
             var callable = _tenants.Where(t => t.CanCall(now)).ToList();
             var reads = await Task.WhenAll(callable.Select(async t =>
             {
-                var ok = await TryAsync(t, "Presence lesen", async () =>
+                var ok = await TryAsync(t, "read presence", async () =>
                 {
                     t.Presence = await _gateway.GetPresenceAsync(t.TenantId, ct);
                     t.PresenceReadAt = _time.GetUtcNow();
@@ -152,7 +154,7 @@ public sealed class SyncEngine
                 t.IsSource = plan.Sources.Contains(t.TenantId);
                 if (t.IsSource != wasSource)
                     _log.LogInformation("{Tenant}: {Change} ({Presence})", t.Name,
-                        t.IsSource ? "wird Quelle" : "ist keine Quelle mehr", t.Presence);
+                        t.IsSource ? "became a source" : "is no longer a source", t.Presence);
             }
 
             await Task.WhenAll(plan.Actions.Select(a => ExecuteAsync(a, ct)));
@@ -175,7 +177,7 @@ public sealed class SyncEngine
             results = await Task.WhenAll(Select(tenantIds).Select(async t =>
             {
                 var now = _time.GetUtcNow();
-                var ok = await TryAsync(t, $"Status {status} setzen",
+                var ok = await TryAsync(t, $"set status {status}",
                     () => _gateway.SetPreferredAsync(t.TenantId, status, duration, ct), ct);
                 if (ok)
                 {
@@ -192,8 +194,8 @@ public sealed class SyncEngine
         {
             ReleaseAndPublish();
         }
-        _log.LogInformation("Manueller Status {Status} ({Duration}) gesetzt: {Result}", status,
-            duration?.ToString() ?? "Standard", Describe(results));
+        _log.LogInformation("Manual status {Status} ({Duration}) set: {Result}", status,
+            duration?.ToString() ?? "default", Describe(results));
         return results;
     }
 
@@ -206,7 +208,7 @@ public sealed class SyncEngine
         {
             results = await Task.WhenAll(Select(tenantIds).Select(async t =>
             {
-                var ok = await TryAsync(t, "Status zurücksetzen", () => _gateway.ClearPreferredAsync(t.TenantId, ct), ct);
+                var ok = await TryAsync(t, "reset status", () => _gateway.ClearPreferredAsync(t.TenantId, ct), ct);
                 if (ok)
                 {
                     // Graph may still report the old preferred state for a moment; don't mirror it.
@@ -222,7 +224,7 @@ public sealed class SyncEngine
         {
             ReleaseAndPublish();
         }
-        _log.LogInformation("Manueller Status zurückgesetzt: {Result}", Describe(results));
+        _log.LogInformation("Manual status reset: {Result}", Describe(results));
         return results;
     }
 
@@ -241,12 +243,12 @@ public sealed class SyncEngine
         {
             var open = _tenants.Where(t => t.OwnSession is not null && !t.IsBlocked).ToList();
             if (open.Count > 0)
-                _log.LogInformation("Beende {Count} eigene Session(s)", open.Count);
+                _log.LogInformation("Ending {Count} own session(s)", open.Count);
             await Task.WhenAll(open.Select(t => ClearAsync(t, ct)));
         }
         catch (Exception ex)
         {
-            _log.LogWarning(ex, "Aufräumen der eigenen Sessions unvollständig");
+            _log.LogWarning(ex, "Cleanup of own sessions incomplete");
         }
         finally
         {
@@ -262,18 +264,18 @@ public sealed class SyncEngine
             case SetSessionAction set:
                 var started = _time.GetUtcNow();
                 var expiration = _options.SessionExpiration;
-                if (await TryAsync(t, "Session setzen", () => _gateway.SetSessionAsync(t.TenantId, set.Kind, expiration, ct), ct))
+                if (await TryAsync(t, "set session", () => _gateway.SetSessionAsync(t.TenantId, set.Kind, expiration, ct), ct))
                 {
                     var isNew = t.OwnSession is null || t.OwnSession.Kind != set.Kind;
                     t.OwnSession = new OwnSession(set.Kind, isNew ? started : t.OwnSession!.Since, started + expiration);
                     if (isNew)
-                        _log.LogInformation("{Tenant}: Sync-Session {Kind} gesetzt", t.Name, set.Kind);
+                        _log.LogInformation("{Tenant}: sync session {Kind} set", t.Name, set.Kind);
                 }
                 break;
 
             case ClearSessionAction:
                 if (await ClearAsync(t, ct))
-                    _log.LogInformation("{Tenant}: Sync-Session beendet", t.Name);
+                    _log.LogInformation("{Tenant}: sync session ended", t.Name);
                 break;
         }
     }
@@ -281,7 +283,7 @@ public sealed class SyncEngine
     private async Task<bool> ClearAsync(TenantState t, CancellationToken ct)
     {
         var kind = t.OwnSession?.Kind ?? SyncKind.Busy;
-        var ok = await TryAsync(t, "Session beenden", () => _gateway.ClearSessionAsync(t.TenantId, ct), ct);
+        var ok = await TryAsync(t, "end session", () => _gateway.ClearSessionAsync(t.TenantId, ct), ct);
         if (ok)
         {
             t.OwnSession = null;
@@ -296,7 +298,7 @@ public sealed class SyncEngine
         {
             if (t.OwnSession is { } s && s.Until <= now)
             {
-                _log.LogInformation("{Tenant}: Sync-Session abgelaufen", t.Name);
+                _log.LogInformation("{Tenant}: sync session expired", t.Name);
                 t.OwnSession = null;
                 t.Suppression = new SourceSuppression(now + _options.SourceCooldown, PresenceRules.SessionPresence(s.Kind));
             }
@@ -313,9 +315,10 @@ public sealed class SyncEngine
         {
             await action();
             if (t.Health != TenantHealth.Ok)
-                _log.LogInformation("{Tenant}: verbunden", t.Name);
+                _log.LogInformation("{Tenant}: connected", t.Name);
             t.Health = TenantHealth.Ok;
             t.HealthMessage = null;
+            t.HealthLog = null;
             t.ConsecutiveFailures = 0;
             t.BackoffUntil = null;
             return true;
@@ -330,7 +333,8 @@ public sealed class SyncEngine
         }
         catch (Exception ex)
         {
-            Fail(t, operation, new TenantAccessException(TenantFailureKind.Transient, "Unerwarteter Fehler: " + ex.GetType().Name, inner: ex));
+            Fail(t, operation, new TenantAccessException(TenantFailureKind.Transient,
+                new LocalizedMessage(nameof(Strings.Error_Unexpected), ex.GetType().Name), inner: ex));
         }
         return false;
     }
@@ -339,15 +343,16 @@ public sealed class SyncEngine
     {
         var now = _time.GetUtcNow();
         t.HealthMessage = ex.UserMessage;
+        t.HealthLog = ex.Message;
         switch (ex.Kind)
         {
             case TenantFailureKind.AuthRequired:
                 t.Health = TenantHealth.AuthRequired;
-                _log.LogWarning("{Tenant}: {Operation} – Anmeldung erforderlich: {Message}", t.Name, operation, ex.UserMessage);
+                _log.LogWarning("{Tenant}: {Operation} – sign-in required: {Message}", t.Name, operation, ex.Message);
                 break;
             case TenantFailureKind.Disabled:
                 t.Health = TenantHealth.Disabled;
-                _log.LogError("{Tenant}: {Operation} – Tenant deaktiviert: {Message}", t.Name, operation, ex.UserMessage);
+                _log.LogError("{Tenant}: {Operation} – tenant blocked: {Message}", t.Name, operation, ex.Message);
                 break;
             default:
                 t.ConsecutiveFailures++;
@@ -356,7 +361,7 @@ public sealed class SyncEngine
                     delay = retryAfter;
                 t.BackoffUntil = now + delay;
                 t.Health = TenantHealth.Degraded;
-                _log.LogWarning(ex.InnerException, "{Tenant}: {Operation} fehlgeschlagen ({Kind}, Versuch {Attempt}), nächster Versuch in {Delay}: {Message}",
+                _log.LogWarning(ex.InnerException, "{Tenant}: {Operation} failed ({Kind}, attempt {Attempt}), next attempt in {Delay}: {Message}",
                     t.Name, operation, ex.Kind, t.ConsecutiveFailures, delay, ex.UserMessage);
                 break;
         }
@@ -372,6 +377,7 @@ public sealed class SyncEngine
     {
         t.Health = TenantHealth.Unknown;
         t.HealthMessage = null;
+            t.HealthLog = null;
         t.ConsecutiveFailures = 0;
         t.BackoffUntil = null;
     }
@@ -384,12 +390,13 @@ public sealed class SyncEngine
 
     private static bool Same(string a, string b) => string.Equals(a, b, StringComparison.OrdinalIgnoreCase);
 
-    private static TenantResult Result(TenantState t, bool ok) => new(t.TenantId, t.Name, ok, ok ? null : t.HealthMessage);
+    private static TenantResult Result(TenantState t, bool ok) =>
+        new(t.TenantId, t.Name, ok, ok ? null : t.HealthMessage, ok ? null : t.HealthLog);
 
     private static string Describe(IReadOnlyCollection<TenantResult> results) =>
         results.Count == 0
-            ? "kein aktiver, angemeldeter Tenant – nichts gesetzt"
-            : string.Join(", ", results.Select(r => r.Success ? $"{r.Name} ok" : $"{r.Name} Fehler: {r.Error}"));
+            ? "no active, signed-in tenant – nothing set"
+            : string.Join(", ", results.Select(r => r.Success ? $"{r.Name} ok" : $"{r.Name} failed: {r.LogError ?? r.Error}"));
 
     /// <summary>Builds the snapshot while still holding the lock, then raises the event outside of it.</summary>
     private void ReleaseAndPublish()
@@ -410,7 +417,7 @@ public sealed class SyncEngine
         }
         catch (Exception ex)
         {
-            _log.LogError(ex, "Fehler in SnapshotChanged-Handler");
+            _log.LogError(ex, "Error in SnapshotChanged handler");
         }
     }
 }

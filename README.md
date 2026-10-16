@@ -1,139 +1,137 @@
 # PresenceSync
 
-**Ein Teams-Status für alle Tenants.** PresenceSync ist eine kleine Windows-App für den Infobereich, die den
-Microsoft-Teams-Status über mehrere Microsoft-Entra-ID-Tenants hinweg abgleicht und zentral steuerbar macht.
+**One Teams status for all tenants.** PresenceSync is a small Windows notification-area app that keeps your
+Microsoft Teams status in sync across multiple Microsoft Entra ID tenants and lets you control it from one place.
 
 [![CI](https://github.com/Lars-Level21/presencesync/actions/workflows/ci.yml/badge.svg)](https://github.com/Lars-Level21/presencesync/actions/workflows/ci.yml)
-[![Lizenz: MIT](https://img.shields.io/badge/Lizenz-MIT-blue.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-## Das Problem
+## The problem
 
-Berater, Dienstleister und Freelancer arbeiten oft mit **eigenen Konten in mehreren Kunden-Tenants** und sind im
-Teams-Client in allen gleichzeitig angemeldet. Der Teams-Status ist aber **pro Tenant getrennt**:
+Consultants, service providers and freelancers often work with **their own accounts in several customer tenants** and
+are signed in to all of them at the same time in the Teams client. But the Teams status is **separate per tenant**:
 
-- Wer im Tenant des Arbeitgebers telefoniert, erscheint bei allen Kunden weiter als „Verfügbar“ – und wird
-  angerufen oder angeschrieben, obwohl er nicht reagieren kann.
-- Wer „Nicht stören“ setzen will, muss im Teams-Client jede Organisation einzeln wechseln und den Status dort setzen.
-  Im Projektalltag macht das niemand.
+- If you are on a call in your employer's tenant, every customer still sees you as "Available" – and calls or messages
+  you even though you can't respond.
+- To set "Do not disturb", you have to switch to each organization in the Teams client and set the status there.
+  In day-to-day project work, nobody does that.
 
-## Die Lösung
+## The solution
 
-PresenceSync meldet sich mit dem jeweiligen Konto in jedem Tenant an und nutzt die offiziellen
-Microsoft-Graph-Presence-APIs:
+PresenceSync signs in to each tenant with the respective account and uses the official Microsoft Graph presence APIs:
 
-- **Auto-Sync:** Ist man in einem Tenant im Anruf, in einer Besprechung, präsentiert oder auf „Nicht stören“,
-  erscheint man in allen anderen Tenants als „Beschäftigt“ bzw. „Nicht stören“. Danach fällt der Status von selbst
-  zurück.
-- **Manuelle Steuerung:** Status für alle oder einzelne Tenants direkt aus dem Infobereich setzen – Verfügbar,
-  Beschäftigt, Nicht stören, Gleich zurück, Abwesend – jeweils für 30 min, 1 h, 2 h, bis Tagesende oder unbegrenzt.
-  Zwei Klicks, ohne Organisationswechsel im Teams-Client.
-- **Teams behält das letzte Wort:** Die App legt eine eigene Presence-Session an, die Teams mit den übrigen Sessions
-  des Benutzers zusammenführt. Ein in Teams manuell gesetzter Status wird nicht überschrieben; stürzt die App ab,
-  läuft ihr Status nach 5 Minuten von selbst aus.
+- **Auto-sync:** When you are in a call, in a meeting, presenting or set to "Do not disturb" in one tenant, you appear
+  as "Busy" or "Do not disturb" in all other tenants. Afterwards the status reverts on its own.
+- **Manual control:** Set the status for all or individual tenants directly from the notification area – Available,
+  Busy, Do not disturb, Be right back, Away – for 30 min, 1 h, 2 h, until end of day or unlimited.
+  Two clicks, no switching organizations in the Teams client.
+- **Teams has the last word:** The app creates its own presence session, which Teams merges with the user's other
+  sessions. A status set manually in Teams is not overwritten; if the app crashes, its status expires on its own after
+  5 minutes.
 
 ```mermaid
 flowchart LR
-    subgraph PC["Windows-Gerät"]
+    subgraph PC["Windows device"]
         APP["PresenceSync"]
-        WAM["Windows-Anmeldung (WAM)"]
+        WAM["Windows sign-in (WAM)"]
         APP <--> WAM
     end
-    subgraph A["Tenant A · z. B. Arbeitgeber"]
-        GA["Microsoft Graph<br/>eigener Status"]
+    subgraph A["Tenant A · e.g. employer"]
+        GA["Microsoft Graph<br/>own status"]
     end
-    subgraph B["Tenant B · Kunde"]
-        GB["Microsoft Graph<br/>eigener Status"]
+    subgraph B["Tenant B · customer"]
+        GB["Microsoft Graph<br/>own status"]
     end
-    subgraph C["Tenant C · Kunde"]
-        GC["Microsoft Graph<br/>eigener Status"]
+    subgraph C["Tenant C · customer"]
+        GC["Microsoft Graph<br/>own status"]
     end
-    APP -- "lesen: im Anruf" --> GA
-    APP -- "setzen: beschäftigt" --> GB
-    APP -- "setzen: beschäftigt" --> GC
+    APP -- "read: in a call" --> GA
+    APP -- "set: busy" --> GB
+    APP -- "set: busy" --> GC
 ```
 
-**Grundprinzipien**
+**Key principles**
 
 | | |
 | --- | --- |
-| Läuft | lokal unter Windows 10/11 im Benutzerkontext – kein Server, kein Backend, keine Telemetrie |
-| Zugriff | ausschließlich der **eigene** Teams-Status; delegierte Berechtigungen `User.Read`, `Presence.ReadWrite`, `offline_access` |
-| Anmeldung | Microsoft Entra ID über den Windows-Token-Broker (WAM); MFA und Conditional Access der Tenants gelten unverändert |
-| Zwischen Tenants | nur das Signal „belegt / nicht stören“ – keine Gesprächspartner, Inhalte oder Termine |
-| Netzwerkziele | `login.microsoftonline.com`, `graph.microsoft.com` |
+| Runs | locally on Windows 10/11 in the user context – no server, no backend, no telemetry |
+| Access | only the user's **own** Teams status; delegated permissions `User.Read`, `Presence.ReadWrite`, `offline_access` |
+| Sign-in | Microsoft Entra ID via the Windows token broker (WAM); the tenants' MFA and Conditional Access apply unchanged |
+| Between tenants | only the signal "busy / do not disturb" – no call partners, content or appointments |
+| Network endpoints | `login.microsoftonline.com`, `graph.microsoft.com` |
 
-Details zu Komponenten, Sync-Logik und Datenflüssen: **[docs/architecture.md](docs/architecture.md)**
+Details on components, sync logic and data flows: **[docs/architecture.md](docs/architecture.md)**
 
-## Die App
+## The app
 
-- **Linksklick aufs Tray-Symbol** öffnet ein Fenster über der Taskleiste: Gesamtstatus, pro Tenant eine Karte mit
-  Status, Schnellaktionen für alle Tenants und der Schalter für Auto-Sync.
-- **Rechtsklick** öffnet ein kompaktes Menü mit denselben Funktionen.
-- **Einstellungen:** Tenants per Windows-Kontoauswahl hinzufügen (Tenant-ID und Name werden automatisch übernommen),
-  Abfrageintervall, Autostart, globale Tastenkürzel (z. B. „Alle → Nicht stören 1 h“).
-- Die Statussymbole entsprechen Teams; die Oberfläche folgt dem Windows-11-Stil und dem hellen bzw. dunklen Modus.
+- **Left-click the tray icon** to open a window above the taskbar: overall status, one card per tenant with its
+  status, quick actions for all tenants and the "Auto-sync" toggle.
+- **Right-click** opens a compact menu with the same functions.
+- **Settings:** add tenants via the Windows account picker (tenant ID and name are filled in automatically),
+  polling interval, autostart, global keyboard shortcuts (e.g. "All → Do not disturb 1 h").
+- The status icons match Teams; the UI follows the Windows 11 style and light or dark mode.
+- The UI is shown in the user's Windows display language (English by default, German if Windows is set to German).
 
-| Tray-Symbol | Bedeutung |
+| Tray icon | Meaning |
 | --- | --- |
-| grün mit Haken | alle verfügbar |
-| rot / rot mit Balken | irgendwo beschäftigt bzw. „Nicht stören“ – Sync aktiv |
-| grauer Ring | Auto-Sync aus oder offline |
-| orange mit „!“ | mindestens ein Tenant braucht eine Anmeldung oder ist gesperrt |
+| green with check mark | all available |
+| red / red with bar | busy or "Do not disturb" somewhere – sync active |
+| gray ring | auto-sync off or offline |
+| orange with "!" | at least one tenant needs a sign-in or is blocked |
 
-## Schnellstart (Einzelnutzer)
+## Quick start (single user)
 
-1. **App-Registrierung** im eigenen Home-Tenant anlegen – einmalig, mit
-   [`scripts/New-AppRegistration.ps1`](scripts/New-AppRegistration.ps1), siehe
-   [docs/deployment.md → App-Registrierung](docs/deployment.md#1-app-registrierung). Die ausgegebene `appId` ist die
-   **Client-ID**.
-2. **App starten:** `PresenceSync.exe` aus dem [neuesten Release](https://github.com/Lars-Level21/presencesync/releases/latest) herunterladen (Prüfsumme siehe
-   [SECURITY.md](SECURITY.md)) oder selbst bauen. Die Exe ist nicht signiert; Windows SmartScreen warnt deshalb beim
-   ersten Start einer heruntergeladenen Datei – *Weitere Informationen → Trotzdem ausführen*. Selbst bauen:
+1. **Create an app registration** in your own home tenant – once, with
+   [`scripts/New-AppRegistration.ps1`](scripts/New-AppRegistration.ps1), see
+   [docs/deployment.md → App registration](docs/deployment.md#1-app-registration). The `appId` it outputs is the
+   **client ID**.
+2. **Start the app:** download `PresenceSync.exe` from the [latest release](https://github.com/Lars-Level21/presencesync/releases/latest) (checksum: see
+   [SECURITY.md](SECURITY.md)) or build it yourself. The exe is not signed, so Windows SmartScreen warns the first time
+   you run a downloaded file – *More info → Run anyway*. To build it yourself:
 
    ```bash
    dotnet publish src/PresenceSync.App -c Release -o publish
    ```
 
-3. **Einrichten:** Beim ersten Start öffnen sich die Einstellungen. Client-ID eintragen, dann für **jeden** Tenant –
-   auch den eigenen Home-Tenant – *Tenant hinzufügen → Konto auswählen …* und mit dem jeweiligen Konto anmelden.
-   **Speichern.** Auto-Sync braucht mindestens zwei aktive Tenants.
+3. **Set up:** Settings open on first start. Enter the client ID, then for **each** tenant – including your own home
+   tenant – choose *Add tenant → Choose account …* and sign in with the respective account.
+   **Save.** Auto-sync needs at least two active tenants.
 
-Fordert ein Kunden-Tenant eine Administratorgenehmigung an, die Kunden-IT mit der
-[Anfrage-Vorlage](docs/consent-request-template.md) und [docs/consent.md](docs/consent.md) ansprechen.
+If a customer tenant asks for admin approval, contact the customer's IT using the
+[request template](docs/consent-request-template.md) and [docs/consent.md](docs/consent.md).
 
-## Für IT-Abteilungen: PresenceSync in der Organisation bereitstellen
+## For IT departments: deploying PresenceSync in your organization
 
-Organisationen legen **eine** App-Registrierung an, geben deren Client-ID und optional den Home-Tenant per
-Richtlinie vor (Intune oder Gruppenrichtlinie, ADMX-Vorlagen liegen bei) und verteilen die App, z. B. als
-Intune-Win32-App. Mitarbeiter können die Vorgaben nicht ändern und müssen nur noch ihre Kunden-Tenants hinzufügen;
-der Home-Tenant meldet sich mit dem Windows-Konto automatisch an.
+Organizations create **one** app registration, set its client ID and optionally the home tenant via policy (Intune
+or Group Policy, ADMX templates included) and distribute the app, e.g. as an Intune Win32 app. Employees cannot
+change these settings and only need to add their customer tenants; the home tenant signs in automatically with the
+Windows account.
 
-→ **[docs/deployment.md](docs/deployment.md)**: App-Registrierung, Herausgeber-Verifizierung, Richtlinien,
-Verteilung, Fehlerbilder
+→ **[docs/deployment.md](docs/deployment.md)**: app registration, publisher verification, policies, distribution,
+troubleshooting
 
-## Für Admins der Kunden-Tenants: Zustimmung (Consent)
+## For customer tenant admins: consent
 
-Möchte ein externer Mitarbeiter PresenceSync mit seinem Konto in Ihrem Tenant verwenden, braucht die App die
-Zustimmung zu drei delegierten Low-Privilege-Berechtigungen. Die Freigabe lässt sich auf genau diesen einen Benutzer
-beschränken und jederzeit widerrufen.
+If an external employee wants to use PresenceSync with their account in your tenant, the app needs consent for three
+delegated low-privilege permissions. Consent can be restricted to exactly this one user and revoked at any time.
 
-→ **[docs/consent.md](docs/consent.md)**: Berechtigungen und verwendete Endpunkte, Sicherheit, Zustimmung nur für
-einen Benutzer, Überwachen und Widerrufen, FAQ
+→ **[docs/consent.md](docs/consent.md)**: permissions and endpoints used, security, consent for a single user,
+monitoring and revoking, FAQ
 
-## Sicherheit
-
-| | |
-| --- | --- |
-| [SECURITY.md](SECURITY.md) | Sicherheitsmodell, bekannte Einschränkungen, Sicherheitslücken melden, Prüfsummen der Releases |
-
-## Weitere Dokumentation
+## Security
 
 | | |
 | --- | --- |
-| [docs/architecture.md](docs/architecture.md) | Komponenten, Anmeldung, Sync-Logik, Datenflüsse, gespeicherte Daten |
-| [docs/development.md](docs/development.md) | Bauen, Testen, Projektstruktur, Release |
-| [docs/spec.md](docs/spec.md) | Ursprüngliche Anforderungen und Umsetzungsnotizen |
+| [SECURITY.md](SECURITY.md) | Security model, known limitations, reporting vulnerabilities, release checksums |
 
-## Lizenz
+## Further documentation
+
+| | |
+| --- | --- |
+| [docs/architecture.md](docs/architecture.md) | Components, sign-in, sync logic, data flows, stored data |
+| [docs/development.md](docs/development.md) | Building, testing, project structure, release |
+| [docs/spec.md](docs/spec.md) | Original requirements and implementation notes |
+
+## License
 
 [MIT](LICENSE) – © 2026 Lars Martin

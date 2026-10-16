@@ -4,6 +4,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:res="clr-namespace:PresenceSync.Core.Resources;assembly=PresenceSync.Core"
     xmlns:vm="clr-namespace:PresenceSync.App.ViewModels"
     Title="PresenceSync"
     Width="380"
@@ -44,13 +45,13 @@
                 <ui:TextBlock Text="PresenceSync" FontTypography="BodyStrong" />
                 <TextBlock Text="{Binding Subtitle}" Style="{StaticResource SecondaryText}" />
             </StackPanel>
-            <ui:Button Grid.Column="2" Appearance="Transparent" Padding="8" ToolTip="Einstellungen"
+            <ui:Button Grid.Column="2" Appearance="Transparent" Padding="8" ToolTip="{x:Static res:Strings.Flyout_Settings}"
                        Icon="{ui:SymbolIcon Settings24}" Command="{Binding OpenSettingsCommand}" />
         </Grid>
 
         <!-- Tenants -->
         <StackPanel Grid.Row="1">
-            <TextBlock Text="Noch keine Tenants. Über die Einstellungen hinzufügen." TextWrapping="Wrap" Margin="0,0,0,12">
+            <TextBlock Text="{x:Static res:Strings.Flyout_EmptyHint}" TextWrapping="Wrap" Margin="0,0,0,12">
                 <TextBlock.Style>
                     <Style TargetType="TextBlock" BasedOn="{StaticResource SecondaryText}">
                         <Style.Triggers>
@@ -81,11 +82,11 @@
                                     <TextBlock Text="{Binding Detail}" Style="{StaticResource SecondaryText}" TextWrapping="Wrap"
                                                x:Name="DetailText" />
                                 </StackPanel>
-                                <ui:Button Grid.Column="2" Content="Anmelden" Appearance="Caution" Margin="8,0,0,0"
+                                <ui:Button Grid.Column="2" Content="{x:Static res:Strings.Flyout_SignIn}" Appearance="Caution" Margin="8,0,0,0"
                                            VerticalAlignment="Center" Command="{Binding SignInCommand}"
                                            Visibility="{Binding NeedsSignIn, Converter={StaticResource BoolToVisibility}}" />
                                 <ui:Button Grid.Column="3" Appearance="Transparent" Padding="6" Margin="4,0,0,0"
-                                           VerticalAlignment="Center" ToolTip="Status für diesen Tenant"
+                                           VerticalAlignment="Center" ToolTip="{x:Static res:Strings.Flyout_TenantMenuTooltip}"
                                            Icon="{ui:SymbolIcon MoreHorizontal24}" Click="OnTenantMenuClick" />
                             </Grid>
                         </Border>
@@ -105,23 +106,23 @@
         <!-- Quick actions for all tenants -->
         <StackPanel Grid.Row="2" Margin="0,8,0,0"
                     Visibility="{Binding HasTenants, Converter={StaticResource BoolToVisibility}}">
-            <TextBlock Text="Alle Tenants" Style="{StaticResource SecondaryText}" Margin="2,0,0,6" />
+            <TextBlock Text="{x:Static res:Strings.Flyout_AllTenants}" Style="{StaticResource SecondaryText}" Margin="2,0,0,6" />
             <UniformGrid Columns="2">
                 <ui:Button Margin="0,0,4,4" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
-                           Icon="{ui:SymbolIcon PresenceDnd24}" Content="Nicht stören · 1 h"
+                           Icon="{ui:SymbolIcon PresenceDnd24}" Content="{x:Static res:Strings.Flyout_QuickDnd}"
                            Command="{Binding QuickDoNotDisturbCommand}" />
                 <ui:Button Margin="4,0,0,4" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
-                           Icon="{ui:SymbolIcon Call24}" Content="Beschäftigt · 1 h"
+                           Icon="{ui:SymbolIcon Call24}" Content="{x:Static res:Strings.Flyout_QuickBusy}"
                            Command="{Binding QuickBusyCommand}" />
                 <ui:Button Margin="0,4,4,0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
-                           Icon="{ui:SymbolIcon PresenceAway24}" Content="Gleich zurück · 30 min"
+                           Icon="{ui:SymbolIcon PresenceAway24}" Content="{x:Static res:Strings.Flyout_QuickBrb}"
                            Command="{Binding QuickAwayCommand}" />
                 <ui:Button Margin="4,4,0,0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left"
-                           Icon="{ui:SymbolIcon ArrowCounterclockwise24}" Content="Zurücksetzen"
+                           Icon="{ui:SymbolIcon ArrowCounterclockwise24}" Content="{x:Static res:Strings.Common_Reset}"
                            Command="{Binding ResetAllCommand}" />
             </UniformGrid>
             <ui:Button Margin="0,8,0,0" HorizontalAlignment="Stretch" Appearance="Transparent"
-                       Content="Weitere Status und Dauer …" Click="OnMoreStatusClick" />
+                       Content="{x:Static res:Strings.Flyout_More}" Click="OnMoreStatusClick" />
         </StackPanel>
 
         <!-- Footer -->
@@ -133,11 +134,11 @@
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
-                <ui:ToggleSwitch Content="Auto-Sync" IsChecked="{Binding AutoSync}" VerticalAlignment="Center"
+                <ui:ToggleSwitch Content="{x:Static res:Strings.Common_AutoSync}" IsChecked="{Binding AutoSync}" VerticalAlignment="Center"
                                  IsEnabled="{Binding IsConfigured}" />
-                <ui:Button Grid.Column="1" Appearance="Transparent" Padding="8" ToolTip="Log öffnen"
+                <ui:Button Grid.Column="1" Appearance="Transparent" Padding="8" ToolTip="{x:Static res:Strings.Flyout_OpenLog}"
                            Icon="{ui:SymbolIcon DocumentText24}" Command="{Binding OpenLogCommand}" />
-                <ui:Button Grid.Column="2" Appearance="Transparent" Padding="8" ToolTip="PresenceSync beenden"
+                <ui:Button Grid.Column="2" Appearance="Transparent" Padding="8" ToolTip="{x:Static res:Strings.Flyout_Exit}"
                            Icon="{ui:SymbolIcon Power24}" Command="{Binding ExitCommand}" />
             </Grid>
         </Border>

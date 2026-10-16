@@ -18,7 +18,7 @@ public sealed class SyncEngineTests
     {
         _engine = new SyncEngine(_gateway, SyncOptions.Default, _time);
         _engine.ConfigureAsync(
-            [new(A, "Kunde A", true), new(B, "Kunde B", true), new(C, "LEVEL21", true)],
+            [new(A, "Customer A", true), new(B, "Customer B", true), new(C, "LEVEL21", true)],
             SyncOptions.Default, CancellationToken.None).GetAwaiter().GetResult();
     }
 
@@ -344,7 +344,7 @@ public sealed class SyncEngineTests
         await Poll();
 
         await _engine.ConfigureAsync(
-            [new(A, "Kunde A", true), new(B, "Kunde B", false), new(C, "LEVEL21", true)],
+            [new(A, "Customer A", true), new(B, "Customer B", false), new(C, "LEVEL21", true)],
             SyncOptions.Default, CancellationToken.None);
 
         Assert.False(_gateway.Sessions.ContainsKey(B));

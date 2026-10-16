@@ -1,3 +1,4 @@
+using PresenceSync.Core.Resources;
 using System.Collections.Concurrent;
 using System.Xml;
 using Microsoft.Extensions.Logging;
@@ -22,7 +23,7 @@ public sealed class GraphPresenceGateway : IPresenceGateway, IDisposable
         _clientId = clientId;
         _log = log;
         _http = new HttpClient { Timeout = TimeSpan.FromSeconds(15) };
-        _http.DefaultRequestHeaders.UserAgent.ParseAdd("PresenceSync/0.1");
+        _http.DefaultRequestHeaders.UserAgent.ParseAdd($"PresenceSync/{typeof(GraphPresenceGateway).Assembly.GetName().Version?.ToString(3)}");
     }
 
     public void Register(string tenantId, TenantAuthenticator auth)
@@ -66,7 +67,7 @@ public sealed class GraphPresenceGateway : IPresenceGateway, IDisposable
         }
         catch (GraphNotFoundException)
         {
-            _log.LogDebug("clearPresence: keine Session vorhanden ({TenantId})", tenantId);
+            _log.LogDebug("clearPresence: no session ({TenantId})", tenantId);
         }
     }
 
@@ -91,7 +92,7 @@ public sealed class GraphPresenceGateway : IPresenceGateway, IDisposable
     private TenantContext Get(string tenantId) =>
         _tenants.TryGetValue(tenantId, out var ctx)
             ? ctx
-            : throw new TenantAccessException(TenantFailureKind.Disabled, "Tenant nicht konfiguriert");
+            : throw new TenantAccessException(TenantFailureKind.Disabled, new LocalizedMessage(nameof(Strings.Error_TenantNotConfigured)));
 
     private static async Task<string> UserIdAsync(TenantContext ctx, CancellationToken ct)
     {
@@ -99,7 +100,7 @@ public sealed class GraphPresenceGateway : IPresenceGateway, IDisposable
         {
             var me = await ctx.Client.GetAsync("me?$select=id", ct);
             ctx.UserId = me?["id"]?.GetValue<string>()
-                         ?? throw new TenantAccessException(TenantFailureKind.Transient, "Benutzer-ID nicht ermittelbar");
+                         ?? throw new TenantAccessException(TenantFailureKind.Transient, new LocalizedMessage(nameof(Strings.Error_UserIdUnavailable)));
         }
         return ctx.UserId;
     }

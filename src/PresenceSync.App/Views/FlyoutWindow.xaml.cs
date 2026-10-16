@@ -100,7 +100,7 @@ internal partial class FlyoutWindow : FluentWindow
     private void OnMoreStatusClick(object sender, RoutedEventArgs e)
     {
         var menu = new ContextMenu();
-        foreach (var item in MenuFactory.StatusItems(_vm.Actions, null, ""))
+        foreach (var item in MenuFactory.StatusItems(_vm.Actions, null, allTenants: false))
             menu.Items.Add(item);
         Open(menu, (FrameworkElement)sender);
     }

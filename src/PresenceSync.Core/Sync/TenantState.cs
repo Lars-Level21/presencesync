@@ -60,6 +60,9 @@ internal sealed class TenantState(string tenantId, string name, bool enabled)
 
     public TenantHealth Health { get; set; } = TenantHealth.Unknown;
     public string? HealthMessage { get; set; }
+
+    /// <summary>Same error in English for the log.</summary>
+    public string? HealthLog { get; set; }
     public int ConsecutiveFailures { get; set; }
     public DateTimeOffset? BackoffUntil { get; set; }
 

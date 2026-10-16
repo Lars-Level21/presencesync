@@ -1,3 +1,4 @@
+using PresenceSync.Core.Resources;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
@@ -45,11 +46,11 @@ internal sealed class GraphClient(HttpClient http, Func<bool, CancellationToken,
             }
             catch (HttpRequestException ex)
             {
-                throw new TenantAccessException(TenantFailureKind.Transient, "Netzwerkfehler", inner: ex);
+                throw new TenantAccessException(TenantFailureKind.Transient, new LocalizedMessage(nameof(Strings.Error_Network)), inner: ex);
             }
             catch (TaskCanceledException ex) when (!ct.IsCancellationRequested)
             {
-                throw new TenantAccessException(TenantFailureKind.Transient, "Zeitüberschreitung bei Graph", inner: ex);
+                throw new TenantAccessException(TenantFailureKind.Transient, new LocalizedMessage(nameof(Strings.Error_GraphTimeout)), inner: ex);
             }
 
             using (response)
@@ -79,14 +80,14 @@ internal sealed class GraphClient(HttpClient http, Func<bool, CancellationToken,
         return response.StatusCode switch
         {
             HttpStatusCode.TooManyRequests or HttpStatusCode.ServiceUnavailable or HttpStatusCode.GatewayTimeout =>
-                new TenantAccessException(TenantFailureKind.Throttled, $"Graph drosselt / nicht verfügbar ({detail})", RetryAfter(response)),
+                new TenantAccessException(TenantFailureKind.Throttled, new LocalizedMessage(nameof(Strings.Error_GraphThrottled), detail), RetryAfter(response)),
             HttpStatusCode.Unauthorized =>
-                new TenantAccessException(TenantFailureKind.AuthRequired, $"Token abgelehnt ({detail})"),
+                new TenantAccessException(TenantFailureKind.AuthRequired, new LocalizedMessage(nameof(Strings.Error_TokenRejected), detail)),
             HttpStatusCode.Forbidden =>
-                new TenantAccessException(TenantFailureKind.Disabled, $"Zugriff verweigert – Consent oder Teams-Lizenz prüfen ({detail})"),
+                new TenantAccessException(TenantFailureKind.Disabled, new LocalizedMessage(nameof(Strings.Error_AccessDenied), detail)),
             HttpStatusCode.NotFound =>
                 new GraphNotFoundException(detail),
-            _ => new TenantAccessException(TenantFailureKind.Transient, $"Graph-Fehler ({detail})"),
+            _ => new TenantAccessException(TenantFailureKind.Transient, new LocalizedMessage(nameof(Strings.Error_Graph), detail)),
         };
     }
 
@@ -115,4 +116,4 @@ internal sealed class GraphClient(HttpClient http, Func<bool, CancellationToken,
 
 /// <summary>404 from Graph. For clearPresence it means "no session", which is fine.</summary>
 internal sealed class GraphNotFoundException(string detail)
-    : TenantAccessException(TenantFailureKind.Transient, $"Nicht gefunden ({detail})");
+    : TenantAccessException(TenantFailureKind.Transient, new LocalizedMessage(nameof(Strings.Error_NotFound), detail));

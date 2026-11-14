@@ -116,7 +116,13 @@ internal sealed partial class TrayViewModel : ObservableObject
         var sources = snapshot.Tenants.Where(t => t.Role == TenantRole.Source).Select(t => t.Name).ToList();
         if (sources.Count > 0)
             return Strings.Format(nameof(Strings.Flyout_SyncActive), string.Join(", ", sources));
-        return snapshot.TrayState == TrayState.Busy ? Strings.Presence_Busy : Strings.Flyout_AllAvailable;
+        return snapshot.TrayState switch
+        {
+            TrayState.Busy => Strings.Presence_Busy,
+            TrayState.Away => Strings.Presence_Away,
+            TrayState.Offline => Strings.Presence_Offline,
+            _ => snapshot.AllAvailable ? Strings.Flyout_AllAvailable : Strings.Presence_Available,
+        };
     }
 
     public string ToolTip

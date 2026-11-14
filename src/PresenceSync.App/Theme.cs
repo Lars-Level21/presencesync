@@ -68,6 +68,8 @@ internal static class Theme
             TrayState.Busy when snapshot.Tenants.Any(t => t.Enabled && GlyphFor(t.Presence) == PresenceGlyph.DoNotDisturb)
                 => PresenceGlyph.DoNotDisturb,
             TrayState.Busy => PresenceGlyph.Busy,
+            TrayState.Away => PresenceGlyph.Away,
+            TrayState.Offline => PresenceGlyph.Offline,
             _ => PresenceGlyph.Available,
         };
     }

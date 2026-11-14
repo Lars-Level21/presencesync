@@ -46,10 +46,10 @@ public sealed record TenantSnapshot(
 
 public enum TrayState
 {
-    /// <summary>Green: everything available.</summary>
+    /// <summary>Green: at least one tenant available, none busy (or no presence known yet).</summary>
     Available,
 
-    /// <summary>Red: occupied somewhere / sync active.</summary>
+    /// <summary>Red: occupied or busy somewhere / sync active.</summary>
     Busy,
 
     /// <summary>Grey: auto-sync off.</summary>
@@ -57,6 +57,12 @@ public enum TrayState
 
     /// <summary>Yellow: at least one tenant with an auth problem.</summary>
     Warning,
+
+    /// <summary>Yellow clock: no tenant available or busy, at least one away / be right back.</summary>
+    Away,
+
+    /// <summary>Grey: every tenant with a known presence is offline.</summary>
+    Offline,
 }
 
 public sealed record SyncSnapshot(DateTimeOffset At, bool AutoSync, IReadOnlyList<TenantSnapshot> Tenants)
@@ -71,7 +77,31 @@ public sealed record SyncSnapshot(DateTimeOffset At, bool AutoSync, IReadOnlyLis
                 return TrayState.Off;
             if (Tenants.Any(t => t.Enabled && (t.Role is TenantRole.Source or TenantRole.Synced || PresenceRules.IsOccupied(t.Presence))))
                 return TrayState.Busy;
-            return TrayState.Available;
+
+            // Nothing occupied: summarize the known availabilities, the "most present" one wins.
+            var known = KnownAvailabilities.ToList();
+            if (known.Count == 0)
+                return TrayState.Available; // no presence read yet (start-up)
+            if (known.Any(a => Is(a, Availabilities.Busy, Availabilities.BusyIdle, Availabilities.DoNotDisturb)))
+                return TrayState.Busy;
+            if (known.Any(a => Is(a, Availabilities.Available, Availabilities.AvailableIdle)))
+                return TrayState.Available;
+            if (known.Any(a => Is(a, Availabilities.Away, Availabilities.BeRightBack)))
+                return TrayState.Away;
+            return TrayState.Offline;
         }
     }
+
+    /// <summary>True if every enabled tenant with a known presence is available (for "All available").</summary>
+    public bool AllAvailable =>
+        KnownAvailabilities.All(a => Is(a, Availabilities.Available, Availabilities.AvailableIdle));
+
+    private IEnumerable<string> KnownAvailabilities =>
+        Tenants
+            .Where(t => t.Enabled && t.Presence is not null)
+            .Select(t => t.Presence!.Availability)
+            .Where(a => !string.IsNullOrEmpty(a) && !Is(a, Availabilities.PresenceUnknown));
+
+    private static bool Is(string availability, params string[] candidates) =>
+        candidates.Any(c => string.Equals(availability, c, StringComparison.OrdinalIgnoreCase));
 }

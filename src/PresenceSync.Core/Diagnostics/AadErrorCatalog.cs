@@ -55,6 +55,37 @@ public static partial class AadErrorCatalog
         return (entry.Kind, new LocalizedMessage(nameof(Strings.Error_WithCode), new LocalizedMessage(entry.Key), code), code);
     }
 
+    /// <summary>
+    /// True for Windows broker (WAM) error codes that report a network problem rather than a sign-in problem:
+    /// facility 0xCAA7xxxx (e.g. 0xCAA70004 "server temporarily unavailable", typical right after standby) and
+    /// 0xCAA8xxxx (WinHTTP errors such as 0xCAA82EE2 timeout or 0xCAA82EFD cannot connect). A silent retry fixes
+    /// these, so they must not ask the user for an interactive sign-in. MSAL reports the code as a decimal or hex string.
+    /// </summary>
+    public static bool IsBrokerNetworkError(string? errorCode)
+    {
+        if (string.IsNullOrWhiteSpace(errorCode))
+            return false;
+        var text = errorCode.Trim();
+        uint code;
+        if (text.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
+        {
+            if (!uint.TryParse(text.AsSpan(2), System.Globalization.NumberStyles.HexNumber, System.Globalization.CultureInfo.InvariantCulture, out code))
+                return false;
+        }
+        else if (long.TryParse(text, System.Globalization.NumberStyles.AllowLeadingSign, System.Globalization.CultureInfo.InvariantCulture, out var value)
+                 && value is >= int.MinValue and <= uint.MaxValue)
+        {
+            code = unchecked((uint)value); // a negative value is the same HRESULT read as a signed int
+        }
+        else
+        {
+            return false;
+        }
+
+        var high = code >> 16;
+        return high is 0xCAA7 or 0xCAA8;
+    }
+
     [GeneratedRegex(@"AADSTS\d{5,6}")]
     private static partial Regex CodePattern();
 }

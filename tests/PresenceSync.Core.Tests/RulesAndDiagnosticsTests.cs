@@ -73,6 +73,18 @@ public sealed class RulesAndDiagnosticsTests
     public void Unknown_code_returns_null() => Assert.Null(AadErrorCatalog.Classify("AADSTS99999 whatever"));
 
     [Theory]
+    [InlineData("3399942148", true)]   // 0xCAA70004, seen after resume from standby
+    [InlineData("-895025148", true)]   // same HRESULT as signed int
+    [InlineData("0xCAA70004", true)]
+    [InlineData("0xcaa82ee2", true)]   // WinHTTP timeout
+    [InlineData("3399614476", false)]  // 0xCAA2000C, interaction required – a real sign-in problem
+    [InlineData("invalid_grant", false)]
+    [InlineData("", false)]
+    [InlineData(null, false)]
+    public void Broker_network_errors_are_recognized(string? code, bool expected) =>
+        Assert.Equal(expected, AadErrorCatalog.IsBrokerNetworkError(code));
+
+    [Theory]
     [InlineData("en-US", "In a call (source)", "Busy (sync)", "Sign-in required")]
     [InlineData("de-DE", "Im Anruf (Quelle)", "Beschäftigt (Sync)", "Anmeldung erforderlich")]
     [InlineData("fr-FR", "In a call (source)", "Busy (sync)", "Sign-in required")] // unsupported language → English

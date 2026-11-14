@@ -188,6 +188,9 @@ public sealed class TenantAuthenticator
                 new LocalizedMessage(nameof(Strings.Error_AuthThrottled)), svc.Headers?.RetryAfter?.Delta, ex),
             MsalServiceException { StatusCode: >= 500 } => new TenantAccessException(TenantFailureKind.Transient,
                 new LocalizedMessage(nameof(Strings.Error_AuthUnavailable)), inner: ex),
+            // WAM network errors (e.g. 0xCAA70004 after standby): retry silently instead of demanding a new sign-in.
+            _ when ex.IsRetryable || AadErrorCatalog.IsBrokerNetworkError(ex.ErrorCode) => new TenantAccessException(TenantFailureKind.Transient,
+                new LocalizedMessage(nameof(Strings.Error_AuthUnavailable)), inner: ex),
             MsalServiceException svc => new TenantAccessException(TenantFailureKind.AuthRequired,
                 new LocalizedMessage(nameof(Strings.Error_SignInFailedCode), svc.ErrorCode), inner: ex),
             _ => new TenantAccessException(TenantFailureKind.Transient, new LocalizedMessage(nameof(Strings.Error_SignInNotPossible), ex.ErrorCode), inner: ex),
